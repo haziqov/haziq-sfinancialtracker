@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Financial Tracker</title>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#ef4444" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: #080808;
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.12; }
+    .bg-blob-1 { width: 600px; height: 600px; background: #dc2626; top: -200px; left: -150px; }
+    .bg-blob-2 { width: 400px; height: 400px; background: #7f1d1d; bottom: -100px; right: -100px; }
+
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, #ffffff08 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(8,8,8,0.7);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .logo-area { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #ef4444, #991b1b);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; box-shadow: 0 0 20px rgba(239,68,68,0.3);
+    }
+    .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .logo-text .top { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #555; }
+    .logo-text .bottom { font-size: 0.9rem; font-weight: 600; color: #e2e8f0; letter-spacing: -0.01em; }
+
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+    .date-badge {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.85rem; border-radius: 999px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      font-size: 0.78rem; color: #666;
+    }
+    .date-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #ef4444; box-shadow: 0 0 6px #ef4444;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #ef4444, #991b1b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: #fff; letter-spacing: 0.05em;
+      border: 1.5px solid rgba(239,68,68,0.4);
+    }
+
+    /* ── Welcome banner ── */
+    .welcome-wrap {
+      position: fixed; top: 64px; left: 0; right: 0; z-index: 40;
+      padding: 1.5rem 2rem 1.25rem;
+      background: rgba(8,8,8,0.5); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .welcome-inner { display: flex; align-items: flex-end; justify-content: space-between; }
+    .greeting-tag { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #ef4444; margin-bottom: 0.3rem; opacity: 0.8; }
+    .greeting-name { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: #f8f8f8; }
+    .greeting-name span {
+      background: linear-gradient(100deg, #f87171 0%, #ef4444 50%, #b91c1c 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .greeting-sub { font-size: 0.8rem; color: #3a3a3a; margin-top: 0.35rem; }
+
+    /* ── Income card ── */
+    .income-card { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; }
+    .income-card .ic-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #444; }
+    .income-card .ic-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; color: #e2e8f0; line-height: 1; }
+    .income-card .ic-value em { font-style: normal; font-size: 0.85rem; font-weight: 400; color: #555; margin-right: 0.2rem; }
+
+    .history-btn {
+      margin-top: 0.4rem;
+      background: none; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px;
+      color: #555; font-family: inherit; font-size: 0.68rem; font-weight: 500;
+      letter-spacing: 0.05em; padding: 0.3rem 0.7rem; cursor: pointer;
+      transition: border-color 0.15s, color 0.15s; align-self: flex-end;
+    }
+    .history-btn:hover { border-color: rgba(239,68,68,0.35); color: #ef4444; }
+
+    .history-dropdown {
+      display: none; position: absolute; top: calc(100% + 0.5rem); right: 0;
+      width: 240px; background: #111;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6); z-index: 100;
+      max-height: 320px; overflow-y: auto;
+    }
+    .history-dropdown.open { display: block; }
+    .hd-header { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #444; display: flex; align-items: center; justify-content: space-between; }
+    .hd-year-sep { padding: 0.35rem 1rem; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #dc2626; background: rgba(239,68,68,0.06); border-top: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .hd-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .hd-row:last-child { border-bottom: none; }
+    .hd-month { font-size: 0.78rem; color: #888; }
+    .hd-amount { font-size: 0.82rem; font-weight: 600; color: #ccc; }
+    .hd-amount em { font-style: normal; font-size: 0.65rem; color: #444; margin-right: 0.15rem; }
+
+    .hd-actions { display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.15s; }
+    .hd-row:hover .hd-actions { opacity: 1; }
+    .hd-btn {
+      width: 22px; height: 22px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px; color: #444; font-size: 0.65rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; font-family: inherit; padding: 0; line-height: 1;
+    }
+    .hd-btn:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+
+    /* ── Expand modal ── */
+    .expand-modal {
+      background: #111; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 2rem; width: 460px; max-width: 95vw;
+      max-height: 80vh; overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.8);
+    }
+    .expand-modal-head {
+      display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;
+    }
+    .expand-modal-close {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      color: #555; font-size: 0.75rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; flex-shrink: 0; font-family: inherit;
+    }
+    .expand-modal-close:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+    .em-row { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .em-row:last-child { border-bottom: none; }
+    .em-month { font-size: 0.88rem; color: #888; }
+    .em-yr { font-size: 0.7rem; color: #333; margin-left: 0.4rem; }
+    .em-amount { font-size: 0.95rem; font-weight: 600; color: #e2e8f0; }
+    .em-amount em { font-style: normal; font-size: 0.72rem; color: #555; margin-right: 0.2rem; }
+    .em-empty { color: #2a2a2a !important; font-weight: 400 !important; }
+    .em-edit-btn { opacity: 0.3; transition: opacity 0.15s, background 0.15s, border-color 0.15s, color 0.15s; }
+    .em-row:hover .em-edit-btn { opacity: 1; }
+    .expand-year-nav {
+      display: flex; align-items: center; justify-content: center; gap: 1rem;
+      padding: 0.65rem 0 0.85rem;
+    }
+    .year-nav-btn {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      color: #555; font-size: 0.8rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; font-family: inherit;
+    }
+    .year-nav-btn:hover:not(:disabled) { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+    .year-nav-btn:disabled { opacity: 0.2; cursor: default; }
+    .year-nav-label { font-size: 1rem; font-weight: 700; color: #ccc; min-width: 52px; text-align: center; letter-spacing: -0.01em; }
+    .chart-toggle { display: flex; gap: 0.35rem; justify-content: flex-end; margin-bottom: 0.6rem; }
+    .chart-toggle-btn {
+      padding: 0.22rem 0.6rem;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px; color: #444; font-size: 0.62rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .chart-toggle-btn:hover { border-color: rgba(239,68,68,0.3); color: #ef4444; }
+    .chart-toggle-btn.active { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.45); color: #ef4444; }
+
+    /* ── Main layout ── */
+    .main {
+      position: fixed;
+      top: 190px;
+      left: 2rem; right: 0; bottom: 0;
+      display: flex; align-items: flex-start;
+      z-index: 10;
+      padding-top: 2rem;
+    }
+
+    /* ── Panel A ── */
+    .panel-a {
+      width: 260px; flex-shrink: 0;
+      background: rgba(14,14,14,0.9); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 14px;
+      display: flex; flex-direction: column; overflow: hidden;
+      max-height: calc(100vh - 245px);
+    }
+    .panel-header {
+      padding: 1rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .panel-label { display: flex; align-items: center; gap: 0.5rem; }
+    .panel-badge {
+      width: 20px; height: 20px; border-radius: 5px;
+      background: linear-gradient(135deg, #ef4444, #991b1b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700; color: #fff;
+      box-shadow: 0 0 10px rgba(239,68,68,0.25);
+    }
+    .panel-name { font-size: 0.75rem; font-weight: 600; color: #aaa; letter-spacing: 0.01em; white-space: nowrap; }
+    .panel-body { flex: 1; padding: 1rem 1.25rem; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* ── Panel A expense tracker ── */
+    .pa-balance { flex-shrink: 0; margin-bottom: 0.6rem; }
+    .pa-bal-row { display: flex; justify-content: space-between; align-items: center; padding: 0.27rem 0; }
+    .pa-bal-label { font-size: 0.7rem; color: #555; }
+    .pa-bal-value { font-size: 0.78rem; font-weight: 600; color: #666; }
+    .pa-bal-divider { height: 1px; background: rgba(255,255,255,0.05); margin: 0.4rem 0; }
+    .pa-add-btn {
+      flex-shrink: 0; width: 100%; padding: 0.42rem;
+      background: rgba(239,68,68,0.06); border: 1px dashed rgba(239,68,68,0.22);
+      border-radius: 8px; color: #ef4444; font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.04em; font-family: inherit; cursor: pointer;
+      transition: all 0.15s; margin-bottom: 0.6rem;
+    }
+    .pa-add-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.45); }
+    .pa-expense-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+    .pa-expense-row {
+      display: flex; align-items: center; gap: 0.45rem;
+      padding: 0.42rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-shrink: 0;
+    }
+    .pa-expense-row:last-child { border-bottom: none; }
+    .pa-cat-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .pa-expense-info { flex: 1; min-width: 0; }
+    .pa-expense-name { font-size: 0.72rem; color: #aaa; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pa-expense-meta { font-size: 0.59rem; color: #333; display: block; margin-top: 0.08rem; }
+    .pa-expense-right { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+    .pa-expense-amt { font-size: 0.72rem; font-weight: 600; color: #666; }
+    .pa-del-btn {
+      width: 15px; height: 15px; border-radius: 3px;
+      background: none; border: none; color: transparent; font-size: 0.85rem;
+      cursor: pointer; transition: color 0.15s; padding: 0; font-family: inherit; line-height: 1;
+    }
+    .pa-expense-row:hover .pa-del-btn { color: #ef4444; }
+    .pa-empty { font-size: 0.7rem; color: #2a2a2a; text-align: center; padding: 1.5rem 0; }
+    .pa-btn-row { display: flex; gap: 0.4rem; flex-shrink: 0; margin-bottom: 0.6rem; }
+    .pa-btn-row .pa-add-btn, .pa-btn-row .pa-scan-btn { margin-bottom: 0; flex: 1; }
+    .pa-scan-btn {
+      flex-shrink: 0; padding: 0.42rem;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; color: #555; font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.03em; font-family: inherit; cursor: pointer; transition: all 0.15s;
+    }
+    .pa-scan-btn:hover:not(:disabled) { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18); color: #888; }
+    .pa-scan-btn:disabled { opacity: 0.5; cursor: wait; }
+    .scan-banner {
+      display: none; margin-bottom: 0.75rem;
+      background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.18);
+      border-radius: 8px; padding: 0.5rem 0.75rem;
+      font-size: 0.67rem; color: #888; line-height: 1.4;
+    }
+    .scan-banner.visible { display: block; }
+
+    /* Expense modal extras */
+    .modal-field-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #444; margin: 0.7rem 0 0.3rem; }
+    .modal-select { background: transparent; border: none; outline: none; color: #f0f0f0; font-size: 0.95rem; font-weight: 600; font-family: inherit; width: 100%; cursor: pointer; appearance: none; -webkit-appearance: none; }
+    .modal-select option { background: #1a1a1a; color: #f0f0f0; }
+    .modal-date { background: transparent; border: none; outline: none; color: #f0f0f0; font-size: 0.95rem; font-weight: 600; font-family: inherit; width: 100%; cursor: pointer; color-scheme: dark; }
+
+    /* ── Salary modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 2rem;
+      width: 340px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.8);
+    }
+    .modal-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, #ef4444, #991b1b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; margin-bottom: 1.25rem;
+      box-shadow: 0 0 20px rgba(239,68,68,0.25);
+    }
+    .modal-title { font-size: 1.1rem; font-weight: 700; color: #f0f0f0; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+    .modal-sub { font-size: 0.78rem; color: #444; margin-bottom: 1.5rem; }
+    .modal-sub span { color: #ef4444; font-weight: 600; }
+
+    .modal-input-wrap {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 0.7rem 1rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.15s;
+    }
+    .modal-input-wrap:focus-within { border-color: rgba(239,68,68,0.4); }
+    .modal-currency { font-size: 0.85rem; color: #555; flex-shrink: 0; }
+    .modal-input {
+      background: transparent; border: none; outline: none;
+      color: #f0f0f0; font-size: 1rem; font-weight: 600;
+      font-family: inherit; width: 100%; caret-color: #ef4444;
+    }
+    .modal-input::placeholder { color: #333; }
+
+    .modal-save {
+      width: 100%;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      border: none; border-radius: 10px;
+      color: #fff; font-family: inherit; font-size: 0.88rem; font-weight: 600;
+      padding: 0.75rem; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .modal-save:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+  <div class="bg">
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header>
+    <div class="logo-area">
+      <div class="logo-icon">₿</div>
+      <div class="logo-text">
+        <span class="top">Personal</span>
+        <span class="bottom">Financial Tracker</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="date-badge">
+        <div class="dot"></div>
+        <span id="date"></span>
+      </div>
+      <div class="avatar">HZ</div>
+    </div>
+  </header>
+
+  <div class="welcome-wrap" id="welcomeWrap">
+    <div class="welcome-inner">
+      <div>
+        <div class="greeting-tag">Dashboard</div>
+        <div class="greeting-name">Welcome back, <span>Haziq</span></div>
+        <div class="greeting-sub" id="subtext"></div>
+      </div>
+      <div style="position:relative;">
+        <div class="income-card">
+          <span class="ic-label"><span id="income-month" style="color:#ef4444;font-size:1.05rem;font-weight:700;letter-spacing:-0.01em;"></span> Income</span>
+          <span class="ic-value"><em>RM</em><span id="income-amount">—</span></span>
+          <button class="history-btn" onclick="toggleHistory()">View History ↓</button>
+        </div>
+        <div class="history-dropdown" id="historyDropdown">
+          <div class="hd-header">
+            <span>Past Income</span>
+            <button class="hd-btn" style="opacity:1;" onclick="openExpandModal(event)" title="View all">⤢</button>
+          </div>
+          <div id="historyList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main" id="mainArea">
+    <aside class="panel-a">
+      <div class="panel-header">
+        <div class="panel-label">
+          <div class="panel-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/>
+              <polyline points="16,7 22,7 22,13"/>
+            </svg>
+          </div>
+          <span class="panel-name">This Month's Performance</span>
+        </div>
+      </div>
+      <div class="panel-body" id="panelABody"></div>
+    </aside>
+  </div>
+
+  <!-- Salary modal -->
+  <div class="modal-overlay" id="salaryModal">
+    <div class="modal">
+      <div class="modal-icon">💰</div>
+      <div class="modal-title">Enter your salary</div>
+      <div class="modal-sub">What's your income for <span id="modal-month"></span>?</div>
+      <div class="modal-input-wrap">
+        <span class="modal-currency">RM</span>
+        <input class="modal-input" id="modalInput" type="number" min="0" step="0.01" placeholder="0.00" />
+      </div>
+      <button class="modal-save" onclick="saveSalaryFromModal()">Save Income</button>
+    </div>
+  </div>
+
+  <input type="file" id="receiptInput" accept="image/*,.pdf" style="display:none;" onchange="scanReceipt(this)" />
+
+  <!-- Add expense modal -->
+  <div class="modal-overlay" id="addExpenseModal" onclick="if(event.target===this)closeAddExpenseModal()">
+    <div class="modal" style="width:360px;">
+      <div class="modal-icon">💸</div>
+      <div class="modal-title">Add Expense</div>
+      <div class="modal-sub" style="margin-bottom:0;">Spending for <span id="expense-modal-month" style="color:#ef4444;font-weight:600;"></span></div>
+      <div class="scan-banner" id="scanBanner">📸 Auto-detected from receipt — review and correct anything that looks wrong.</div>
+      <div class="modal-field-label">Description</div>
+      <div class="modal-input-wrap" style="margin-bottom:0;">
+        <input class="modal-input" id="expenseName" type="text" placeholder="e.g. Grab Food" maxlength="40" />
+      </div>
+      <div class="modal-field-label">Amount</div>
+      <div class="modal-input-wrap" style="margin-bottom:0;">
+        <span class="modal-currency">RM</span>
+        <input class="modal-input" id="expenseAmount" type="number" min="0" step="0.01" placeholder="0.00" />
+      </div>
+      <div class="modal-field-label">Category</div>
+      <div class="modal-input-wrap" style="margin-bottom:0;">
+        <select class="modal-select" id="expenseCategory">
+          <option value="food">🍔 Food & Drink</option>
+          <option value="transport">🚗 Transport</option>
+          <option value="bills">💡 Bills & Utilities</option>
+          <option value="shopping">🛍️ Shopping</option>
+          <option value="entertainment">🎮 Entertainment</option>
+          <option value="health">💊 Health</option>
+          <option value="education">📚 Education</option>
+          <option value="others">📦 Others</option>
+        </select>
+      </div>
+      <div class="modal-field-label">Date</div>
+      <div class="modal-input-wrap" style="gap:0.3rem;align-items:center;">
+        <input class="modal-input" id="expenseDay"   type="text" inputmode="numeric" maxlength="2" placeholder="DD"   style="width:28px;text-align:center;" />
+        <span style="color:#444;flex-shrink:0;">/</span>
+        <input class="modal-input" id="expenseMonth" type="text" inputmode="numeric" maxlength="2" placeholder="MM"   style="width:28px;text-align:center;" />
+        <span style="color:#444;flex-shrink:0;">/</span>
+        <input class="modal-input" id="expenseYear"  type="text" inputmode="numeric" maxlength="4" placeholder="YYYY" style="width:50px;text-align:center;" />
+      </div>
+      <button class="modal-save" onclick="saveExpense()">Add Expense</button>
+    </div>
+  </div>
+
+  <!-- Expand history modal -->
+  <div class="modal-overlay" id="expandModal" onclick="if(event.target===this)closeExpandModal()">
+    <div class="expand-modal">
+      <div class="expand-modal-head">
+        <div>
+          <div class="modal-title">Income History</div>
+          <div class="modal-sub" style="margin-bottom:0;">Your complete income record</div>
+        </div>
+        <button class="expand-modal-close" onclick="closeExpandModal()">✕</button>
+      </div>
+      <div id="expandYearNav"></div>
+      <div class="chart-toggle">
+        <button class="chart-toggle-btn active" data-mode="both" onclick="setChartMode('both')">Both</button>
+        <button class="chart-toggle-btn" data-mode="bar"  onclick="setChartMode('bar')">Bar</button>
+        <button class="chart-toggle-btn" data-mode="line" onclick="setChartMode('line')">Line</button>
+      </div>
+      <div style="height:180px;margin-bottom:1.25rem;">
+        <canvas id="yearChart"></canvas>
+      </div>
+      <div id="expandModalList"></div>
+    </div>
+  </div>
+
+  <!-- Edit salary modal -->
+  <div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEditModal()">
+    <div class="modal">
+      <div class="modal-icon">✏️</div>
+      <div class="modal-title">Edit Income</div>
+      <div class="modal-sub">Updating salary for <span id="edit-modal-month" style="color:#ef4444;font-weight:600;"></span></div>
+      <div class="modal-input-wrap">
+        <span class="modal-currency">RM</span>
+        <input class="modal-input" id="editInput" type="number" min="0" step="0.01" placeholder="0.00" />
+      </div>
+      <button class="modal-save" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+
+  <script>
+    const now = new Date();
+    const ALL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const currentYear = now.getFullYear();
+    const currentMonthIdx = now.getMonth();
+    const currentMonthName = ALL_MONTHS[currentMonthIdx];
+    const salaryKey = 'mft_salary_' + currentMonthName.toLowerCase() + '_' + currentYear;
+
+    // Seed historical data once — skipped on subsequent loads
+    if (!localStorage.getItem('mft_seeded_v1')) {
+      const _seed = {
+        'mft_salary_august_2025':    '1089.42',
+        'mft_salary_september_2025': '1986.35',
+        'mft_salary_october_2025':   '1986.35',
+        'mft_salary_november_2025':  '1986.35',
+        'mft_salary_december_2025':  '1986.35',
+        'mft_salary_january_2026':   '1986.35',
+        'mft_salary_february_2026':  '1766.35',
+        'mft_salary_march_2026':     '1766.35',
+        'mft_salary_april_2026':     '2530.62',
+        'mft_salary_may_2026':       '3593.91',
+      };
+      Object.entries(_seed).forEach(([k, v]) => localStorage.setItem(k, v));
+      localStorage.setItem('mft_seeded_v1', '1');
+    }
+
+    // Date badge
+    document.getElementById('date').textContent = now.toLocaleDateString('en-MY', {
+      weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+    });
+
+    // Greeting sub-text
+    const hour = now.getHours();
+    const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('subtext').textContent = greet + '. Here\'s your financial overview.';
+
+    // Month labels
+    document.getElementById('income-month').textContent = currentMonthName;
+    document.getElementById('modal-month').textContent = currentMonthName;
+
+    // Dynamic panel positioning
+    function positionMain() {
+      const wh = document.getElementById('welcomeWrap').getBoundingClientRect().bottom;
+      document.getElementById('mainArea').style.top = (wh + 24) + 'px';
+    }
+    positionMain();
+    window.addEventListener('resize', positionMain);
+
+    // Display current salary on dashboard and sync Panel A
+    function displaySalary(val) {
+      document.getElementById('income-amount').textContent =
+        Number(val).toLocaleString('en-MY', { minimumFractionDigits: 2 });
+      if (typeof renderPanelA === 'function') renderPanelA();
+    }
+
+    // Load current month salary (with legacy key migration)
+    const saved = localStorage.getItem(salaryKey)
+               || localStorage.getItem('mft_salary_' + currentMonthName.toLowerCase());
+    if (saved) {
+      displaySalary(saved);
+      if (!localStorage.getItem(salaryKey)) localStorage.setItem(salaryKey, saved);
+    } else {
+      document.getElementById('income-amount').textContent = '—';
+      document.getElementById('salaryModal').classList.add('open');
+      document.getElementById('modalInput').focus();
+    }
+
+    function saveSalaryFromModal() {
+      const val = parseFloat(document.getElementById('modalInput').value);
+      if (!isNaN(val) && val >= 0) {
+        localStorage.setItem(salaryKey, val.toFixed(2));
+        displaySalary(val.toFixed(2));
+        document.getElementById('salaryModal').classList.remove('open');
+      }
+    }
+    document.getElementById('modalInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveSalaryFromModal();
+    });
+
+    // ─── History data ───
+    function buildHistoryData() {
+      const data = [];
+      for (let i = 1; i <= 6; i++) {
+        let mIdx = currentMonthIdx - i;
+        let yr = currentYear;
+        if (mIdx < 0) { mIdx += 12; yr = currentYear - 1; }
+        const monthName = ALL_MONTHS[mIdx];
+        const key = 'mft_salary_' + monthName.toLowerCase() + '_' + yr;
+        const legacyKey = yr === currentYear ? 'mft_salary_' + monthName.toLowerCase() : null;
+        const amount = localStorage.getItem(key) || (legacyKey ? localStorage.getItem(legacyKey) : null);
+        data.push({ monthName, yr, key, amount });
+      }
+      return data;
+    }
+
+    // ─── History dropdown ───
+    function buildHistoryDropdown() {
+      const data = buildHistoryData();
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      let lastYr = currentYear;
+
+      data.forEach((item, idx) => {
+        if (item.yr !== lastYr) {
+          const sep = document.createElement('div');
+          sep.className = 'hd-year-sep';
+          sep.textContent = item.yr;
+          list.appendChild(sep);
+          lastYr = item.yr;
+        }
+        const amountHtml = item.amount
+          ? '<em>RM</em>' + Number(item.amount).toLocaleString('en-MY', { minimumFractionDigits: 2 })
+          : '<span style="color:#333">—</span>';
+        const row = document.createElement('div');
+        row.className = 'hd-row';
+        row.innerHTML = `
+          <span class="hd-month">${item.monthName}</span>
+          <span class="hd-amount">${amountHtml}</span>
+        `;
+        list.appendChild(row);
+      });
+    }
+    buildHistoryDropdown();
+
+    function closeHistoryDropdown() {
+      document.getElementById('historyDropdown').classList.remove('open');
+      document.querySelector('.history-btn').textContent = 'View History ↓';
+    }
+
+    function toggleHistory() {
+      const dd = document.getElementById('historyDropdown');
+      dd.classList.toggle('open');
+      document.querySelector('.history-btn').textContent =
+        dd.classList.contains('open') ? 'View History ↑' : 'View History ↓';
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.history-btn') && !e.target.closest('.history-dropdown')) {
+        closeHistoryDropdown();
+      }
+    });
+
+    // ─── All saved history (scans every localStorage key) ───
+    function getAllHistoryData() {
+      const data = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const match = key.match(/^mft_salary_([a-z]+)_(\d{4})$/);
+        if (!match) continue;
+        const monthName = ALL_MONTHS.find(m => m.toLowerCase() === match[1]);
+        if (!monthName) continue;
+        const yr = parseInt(match[2]);
+        data.push({ monthName, mIdx: ALL_MONTHS.indexOf(monthName), yr, key, amount: localStorage.getItem(key) });
+      }
+      // Newest first
+      data.sort((a, b) => b.yr !== a.yr ? b.yr - a.yr : b.mIdx - a.mIdx);
+      return data;
+    }
+
+    // ─── Expand modal — year-paginated ───
+    let expandYears = [];
+    let currentExpandYear = null;
+
+    function openExpandModal(e) {
+      if (e) e.stopPropagation();
+      const data = getAllHistoryData();
+      expandYears = [...new Set(data.map(d => d.yr))]; // already sorted newest first
+
+      if (expandYears.length === 0) {
+        document.getElementById('expandYearNav').innerHTML = '';
+        document.getElementById('expandModalList').innerHTML =
+          '<p style="color:#333;font-size:0.8rem;text-align:center;padding:1.5rem 0;">No history saved yet.</p>';
+        closeHistoryDropdown();
+        document.getElementById('expandModal').classList.add('open');
+        return;
+      }
+
+      // Default to most recent year; preserve current page if still valid
+      if (!currentExpandYear || !expandYears.includes(currentExpandYear)) {
+        currentExpandYear = expandYears[0];
+      }
+
+      renderExpandYear();
+      closeHistoryDropdown();
+      document.getElementById('expandModal').classList.add('open');
+    }
+
+    function renderExpandYear() {
+      const allData = getAllHistoryData();
+      const yearData = allData.filter(d => d.yr === currentExpandYear);
+      const idx = expandYears.indexOf(currentExpandYear);
+      const hasOlder = idx < expandYears.length - 1;
+      const hasNewer = idx > 0;
+
+      // Year navigation
+      document.getElementById('expandYearNav').innerHTML = `
+        <div class="expand-year-nav">
+          <button class="year-nav-btn" onclick="navigateExpandYear(-1)" ${!hasOlder ? 'disabled' : ''}>←</button>
+          <span class="year-nav-label">${currentExpandYear}</span>
+          <button class="year-nav-btn" onclick="navigateExpandYear(1)" ${!hasNewer ? 'disabled' : ''}>→</button>
+        </div>
+      `;
+
+      // Chart
+      renderYearChart(yearData);
+
+      // Rows for this year
+      const ml = document.getElementById('expandModalList');
+      ml.innerHTML = '';
+      yearData.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'em-row';
+        row.innerHTML = `
+          <span class="em-month">${item.monthName}</span>
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="em-amount ${item.amount ? '' : 'em-empty'}">${item.amount ? '<em>RM</em>' + Number(item.amount).toLocaleString('en-MY', {minimumFractionDigits:2}) : '—'}</span>
+            <button class="hd-btn em-edit-btn" onclick="openEditModal(event,'${item.key}','${item.monthName}',${item.yr})" title="Edit">✏</button>
+          </div>
+        `;
+        ml.appendChild(row);
+      });
+    }
+
+    function navigateExpandYear(dir) {
+      // expandYears sorted newest→oldest; ← goes older (idx+1), → goes newer (idx-1)
+      const newIdx = expandYears.indexOf(currentExpandYear) + (dir === -1 ? 1 : -1);
+      if (newIdx >= 0 && newIdx < expandYears.length) {
+        currentExpandYear = expandYears[newIdx];
+        renderExpandYear();
+      }
+    }
+
+    let chartMode = 'both';
+
+    function setChartMode(mode) {
+      chartMode = mode;
+      if (window._yearChart) {
+        window._yearChart.data.datasets[0].hidden = (mode === 'line');
+        window._yearChart.data.datasets[1].hidden = (mode === 'bar');
+        window._yearChart.update();
+      }
+      document.querySelectorAll('.chart-toggle-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+    }
+
+    function renderYearChart(yearData) {
+      if (window._yearChart) { window._yearChart.destroy(); window._yearChart = null; }
+
+      const sorted = [...yearData].reverse(); // oldest → newest left to right
+      const labels = sorted.map(d => d.monthName.slice(0, 3));
+      const values = sorted.map(d => d.amount ? parseFloat(d.amount) : 0);
+      const maxVal = Math.max(...values);
+
+      window._yearChart = new Chart(document.getElementById('yearChart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              type: 'bar',
+              data: values,
+              backgroundColor: values.map(v => v === maxVal && maxVal > 0 ? 'rgba(239,68,68,0.8)' : 'rgba(239,68,68,0.3)'),
+              borderColor: 'rgba(239,68,68,0.6)',
+              borderWidth: 1,
+              borderRadius: 5,
+              hoverBackgroundColor: 'rgba(239,68,68,0.95)',
+              hidden: chartMode === 'line',
+            },
+            {
+              type: 'line',
+              data: values,
+              borderColor: '#ef4444',
+              borderWidth: 2,
+              pointBackgroundColor: '#ef4444',
+              pointBorderColor: '#111',
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              tension: 0.35,
+              fill: false,
+              hidden: chartMode === 'bar',
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1a1a',
+              borderColor: 'rgba(255,255,255,0.08)',
+              borderWidth: 1,
+              titleColor: '#888',
+              bodyColor: '#e2e8f0',
+              callbacks: {
+                label: ctx => ' RM ' + ctx.parsed.y.toLocaleString('en-MY', { minimumFractionDigits: 2 })
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: { color: '#555', font: { size: 11, family: 'Inter, sans-serif' } },
+              border: { color: 'rgba(255,255,255,0.05)' }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: {
+                color: '#555',
+                font: { size: 10, family: 'Inter, sans-serif' },
+                callback: v => 'RM ' + (v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v)
+              },
+              border: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    }
+
+    function closeExpandModal() {
+      document.getElementById('expandModal').classList.remove('open');
+      if (window._yearChart) { window._yearChart.destroy(); window._yearChart = null; }
+    }
+
+    // ─── Edit modal ───
+    let editKey = null;
+
+    function openEditModal(e, key, monthName, yr) {
+      if (e) e.stopPropagation();
+      editKey = key;
+      document.getElementById('edit-modal-month').textContent = monthName + ' ' + yr;
+      document.getElementById('editInput').value = localStorage.getItem(key) || '';
+      document.getElementById('editModal').classList.add('open');
+      setTimeout(() => document.getElementById('editInput').focus(), 80);
+    }
+
+    function saveEdit() {
+      if (!editKey) return;
+      const val = parseFloat(document.getElementById('editInput').value);
+      if (!isNaN(val) && val >= 0) {
+        localStorage.setItem(editKey, val.toFixed(2));
+        if (editKey === salaryKey) displaySalary(val.toFixed(2));
+        buildHistoryDropdown();
+        if (document.getElementById('expandModal').classList.contains('open')) {
+          openExpandModal(null);
+        }
+        closeEditModal();
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('open');
+      editKey = null;
+    }
+
+    document.getElementById('editInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveEdit();
+      if (e.key === 'Escape') closeEditModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeExpandModal(); closeEditModal(); closeAddExpenseModal(); }
+    });
+
+    // ─── Panel A: Expense Tracker ───
+    const CATEGORIES = {
+      food:          { label: 'Food & Drink',    color: '#f97316' },
+      transport:     { label: 'Transport',        color: '#3b82f6' },
+      bills:         { label: 'Bills',            color: '#eab308' },
+      shopping:      { label: 'Shopping',         color: '#a855f7' },
+      entertainment: { label: 'Entertainment',    color: '#ec4899' },
+      health:        { label: 'Health',           color: '#22c55e' },
+      education:     { label: 'Education',        color: '#14b8a6' },
+      others:        { label: 'Others',           color: '#6b7280' },
+    };
+
+    const expensesKey = 'mft_expenses_' + currentMonthName.toLowerCase() + '_' + currentYear;
+
+    function loadExpenses() {
+      try { return JSON.parse(localStorage.getItem(expensesKey)) || []; }
+      catch { return []; }
+    }
+
+    function saveExpenses(expenses) {
+      localStorage.setItem(expensesKey, JSON.stringify(expenses));
+    }
+
+    function renderPanelA() {
+      const expenses = loadExpenses();
+      const income = parseFloat(localStorage.getItem(salaryKey)) || 0;
+      const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+      const remaining = income - totalSpent;
+      const fmt = v => Math.abs(v).toLocaleString('en-MY', { minimumFractionDigits: 2 });
+
+      const remainingColor = remaining < 0 ? '#ef4444' : remaining < income * 0.1 ? '#eab308' : '#e2e8f0';
+
+      const expenseRowsHtml = expenses.length === 0
+        ? '<div class="pa-empty">No expenses yet</div>'
+        : [...expenses].reverse().map(e => {
+            const cat = CATEGORIES[e.category] || CATEGORIES.others;
+            const dateStr = e.date
+              ? new Date(e.date + 'T00:00:00').toLocaleDateString('en-MY', { day: 'numeric', month: 'short' })
+              : '';
+            return `
+              <div class="pa-expense-row">
+                <div class="pa-cat-dot" style="background:${cat.color}"></div>
+                <div class="pa-expense-info">
+                  <span class="pa-expense-name">${e.name}</span>
+                  <span class="pa-expense-meta">${dateStr ? dateStr + ' · ' : ''}${cat.label}</span>
+                </div>
+                <div class="pa-expense-right">
+                  <span class="pa-expense-amt">RM ${fmt(e.amount)}</span>
+                  <button class="pa-del-btn" onclick="deleteExpense(${e.id})">×</button>
+                </div>
+              </div>`;
+          }).join('');
+
+      document.getElementById('panelABody').innerHTML = `
+        <div class="pa-balance">
+          <div class="pa-bal-row">
+            <span class="pa-bal-label">Income</span>
+            <span class="pa-bal-value">RM ${fmt(income)}</span>
+          </div>
+          <div class="pa-bal-row">
+            <span class="pa-bal-label">Spent</span>
+            <span class="pa-bal-value" style="color:#ef4444;">− RM ${fmt(totalSpent)}</span>
+          </div>
+          <div class="pa-bal-divider"></div>
+          <div class="pa-bal-row">
+            <span class="pa-bal-label" style="color:#aaa;font-weight:600;">Remaining</span>
+            <span class="pa-bal-value" style="color:${remainingColor};font-size:0.92rem;font-weight:700;">${remaining < 0 ? '− ' : ''}RM ${fmt(remaining)}</span>
+          </div>
+        </div>
+        <div class="pa-btn-row">
+          <button class="pa-add-btn" onclick="openAddExpenseModal()">+ Add</button>
+          <button class="pa-scan-btn" id="scanReceiptBtn" onclick="document.getElementById('receiptInput').click()">📷 Scan Receipt</button>
+        </div>
+        <div class="pa-expense-list">${expenseRowsHtml}</div>
+      `;
+    }
+    renderPanelA();
+
+    function openAddExpenseModal() {
+      document.getElementById('scanBanner').classList.remove('visible');
+      document.getElementById('expense-modal-month').textContent = currentMonthName + ' ' + currentYear;
+      document.getElementById('expenseName').value = '';
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseCategory').value = 'food';
+      document.getElementById('expenseDay').value   = now.getDate();
+      document.getElementById('expenseMonth').value = now.getMonth() + 1;
+      document.getElementById('expenseYear').value  = now.getFullYear();
+      document.getElementById('addExpenseModal').classList.add('open');
+      setTimeout(() => document.getElementById('expenseName').focus(), 80);
+    }
+
+    function closeAddExpenseModal() {
+      document.getElementById('addExpenseModal').classList.remove('open');
+    }
+
+    function saveExpense() {
+      const name = document.getElementById('expenseName').value.trim();
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      const category = document.getElementById('expenseCategory').value;
+      const dd = document.getElementById('expenseDay').value.padStart(2, '0');
+      const mm = document.getElementById('expenseMonth').value.padStart(2, '0');
+      const yyyy = document.getElementById('expenseYear').value;
+      const date = yyyy && mm && dd ? `${yyyy}-${mm}-${dd}` : '';
+      if (!name || isNaN(amount) || amount <= 0) return;
+      const expenses = loadExpenses();
+      expenses.push({ id: Date.now(), name, amount, category, date });
+      saveExpenses(expenses);
+      renderPanelA();
+      closeAddExpenseModal();
+    }
+
+    function deleteExpense(id) {
+      saveExpenses(loadExpenses().filter(e => e.id !== id));
+      renderPanelA();
+    }
+
+    document.getElementById('expenseName').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('expenseAmount').focus();
+      if (e.key === 'Escape') closeAddExpenseModal();
+    });
+    document.getElementById('expenseAmount').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveExpense();
+      if (e.key === 'Escape') closeAddExpenseModal();
+    });
+    // ─── Receipt scanning (image OCR + PDF) ───
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    async function processReceipt(file) {
+      const btn = document.getElementById('scanReceiptBtn');
+      if (btn) { btn.textContent = '⏳ Scanning...'; btn.disabled = true; }
+      try {
+        let text;
+        if (file.type === 'application/pdf') {
+          text = await extractPdfText(file);
+          if (text.replace(/\s/g, '').length < 40) {
+            const canvas = await renderPdfToCanvas(file);
+            const result = await Tesseract.recognize(canvas, 'eng', { logger: () => {} });
+            text = result.data.text;
+          }
+        } else {
+          const result = await Tesseract.recognize(file, 'eng', { logger: () => {} });
+          text = result.data.text;
+        }
+        prefillExpenseModal(parseReceiptText(text));
+      } catch (err) {
+        console.error(err);
+        alert('Could not read the file. Try a clearer image or a different PDF.');
+      } finally {
+        if (btn) { btn.textContent = '📷 Scan Receipt'; btn.disabled = false; }
+      }
+    }
+
+    async function scanReceipt(input) {
+      const file = input.files[0];
+      if (!file) return;
+      input.value = '';
+      await processReceipt(file);
+    }
+
+    // ─── PWA: service worker + share target ───
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(err =>
+        console.warn('[PWA] SW registration failed:', err)
+      );
+
+      // Receive file shared while app was already open
+      navigator.serviceWorker.addEventListener('message', async event => {
+        if (event.data?.type === 'RECEIPT_SHARED') {
+          const blob = new Blob([event.data.buffer], { type: event.data.fileType });
+          await processReceipt(new File([blob], 'shared-receipt', { type: event.data.fileType }));
+        }
+      });
+
+      // Receive file shared while app was closed (stored in cache by SW)
+      navigator.serviceWorker.ready.then(async () => {
+        const cache = await caches.open('mft-sw-v1');
+        const pending = await cache.match('pending-receipt');
+        if (pending) {
+          await cache.delete('pending-receipt');
+          const blob = await pending.blob();
+          await processReceipt(new File([blob], 'shared-receipt', { type: blob.type }));
+        }
+      });
+    }
+
+    async function extractPdfText(file) {
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      let out = '';
+      for (let i = 1; i <= Math.min(pdf.numPages, 4); i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        out += content.items.map(item => item.str).join('\n') + '\n';
+      }
+      return out;
+    }
+
+    async function renderPdfToCanvas(file) {
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 2.5 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      return canvas;
+    }
+
+    function parseReceiptText(raw) {
+      const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+      const full  = raw.toLowerCase();
+
+      // ── Amount: MYR, Jumlah, Total, RM ──
+      let amount = null;
+      const amtRe     = /(?:transfer\s+amount\s+)?(?:myr|jumlah|total|rm)\s*:?\s*([\d,]+\.?\d{0,2})/i;
+      const decimalRe = /([\d,]+\.\d{2})/g;
+
+      for (const line of lines) {
+        const m = line.match(amtRe);
+        if (m) { const v = parseFloat(m[1].replace(/,/g, '')); if (v > 0) { amount = v; break; } }
+      }
+      if (!amount) {
+        const all = [...raw.matchAll(decimalRe)].map(m => parseFloat(m[1].replace(/,/g, ''))).filter(v => v > 0);
+        if (all.length) amount = Math.max(...all);
+      }
+
+      // ── Date: "26 May 2026", DD/MM/YYYY, YYYY-MM-DD ──
+      let date = null;
+      const monIdx = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
+      const dateRes = [
+        { re: /(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s,]+(\d{4})/i, order: 'dmon_y' },
+        { re: /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/, order: 'dmy' },
+        { re: /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/, order: 'ymd' },
+      ];
+
+      for (const line of lines) {
+        for (const { re, order } of dateRes) {
+          const m = line.match(re);
+          if (!m) continue;
+          let d, mo, y;
+          if      (order === 'ymd')    { y = m[1]; mo = m[2]; d = m[3]; }
+          else if (order === 'dmon_y') { d = m[1]; mo = monIdx[m[2].toLowerCase().slice(0,3)]; y = m[3]; }
+          else                         { d = m[1]; mo = m[2]; y = m[3]; }
+          const obj = new Date(`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+          if (!isNaN(obj)) { date = { d: String(+d), m: String(mo).padStart(2,'0'), y: String(y) }; break; }
+        }
+        if (date) break;
+      }
+
+      // ── Description ──
+      let description = '';
+
+      // 1. Known e-wallet / service names (CIMB DuitNow receipts)
+      const serviceRe = /(touch\s*n?\s*go(?:\s*e?wallet)?|grabpay|grab\s*pay|boost(?:\s*e?wallet)?|shopeepay|shopee\s*pay|bigpay|big\s*pay|[a-z][a-z ]+e-?wallet)/i;
+      for (const line of lines) {
+        const m = line.match(serviceRe);
+        if (m) { description = m[1].replace(/\d{6,}/g, '').trim(); break; }
+      }
+
+      // 2. CIMB "To" field — skip all-caps personal name lines, grab the service line
+      if (!description) {
+        let afterTo = false;
+        for (const line of lines) {
+          if (afterTo) {
+            if (/^[A-Z][A-Z\s]+$/.test(line)) continue;
+            description = line.replace(/\d{6,}/g, '').trim();
+            break;
+          }
+          if (/^to(\s+[A-Z]|$)/i.test(line)) afterTo = true;
+        }
+      }
+
+      // 3. Generic fallback — skip CIMB boilerplate
+      if (!description) {
+        const skipRe = /^(successful|transaction\s*summary|receipt|resit|invoice|reference|when|repeat|transfer|payment|bank charges|note|this receipt|duitnow|fund transfer|date|tarikh|time|tel|no\.|ref|rm\s*\d|\d+$)/i;
+        for (const line of lines) {
+          if (line.length >= 3 && line.length < 60 && !skipRe.test(line) && !/^\d[\d\s.]*$/.test(line) && !/^[A-Z][A-Z\s]{4,}$/.test(line)) {
+            description = line.replace(/[^a-zA-Z0-9 &'.,-]/g, ' ').trim();
+            if (description.length >= 3) break;
+          }
+        }
+      }
+
+      // ── Category ──
+      const catMap = {
+        food:          ['grab food','grabfood','mcdonalds','mcd','kfc','pizza','burger king','subway','starbucks','restaurant','cafe','kopitiam','mamak','bakery','food','makan','nasi','chicken rice'],
+        transport:     ['grabcar','grab car','mycar','taxi','teksi','shell','petronas','caltex','petron','bpetrol','toll','parking','ktm','lrt','mrt','rapidkl','fuel','petrol','minyak'],
+        bills:         ['unifi','maxis','celcom','digi','yes 4g','astro','tnb','syabas','indah water','electricity','broadband','streamyx','time fibre'],
+        shopping:      ['shopee','lazada','amazon','ikea','aeon','giant','mydin','tesco','econsave','bsg','kedai','supermarket','hypermarket'],
+        entertainment: ['cinema','gsc','tgv','mbo','lotus','spotify','netflix','steam','gaming','bowling','karaoke'],
+        health:        ['farmasi','pharmacy','hospital','klinik','clinic','guardian','watson','doctor','dentist','ubat','medicine'],
+        education:     ['buku','tuition','course','university','college','sekolah','school','stationery','stationary'],
+      };
+      let category = 'others';
+      let best = 0;
+      for (const [cat, kws] of Object.entries(catMap)) {
+        const hits = kws.filter(k => full.includes(k)).length;
+        if (hits > best) { best = hits; category = cat; }
+      }
+
+      return { amount, date, category, description };
+    }
+
+    function prefillExpenseModal(parsed) {
+      document.getElementById('expense-modal-month').textContent = currentMonthName + ' ' + currentYear;
+      document.getElementById('expenseName').value    = parsed.description || '';
+      document.getElementById('expenseAmount').value  = parsed.amount ? parsed.amount.toFixed(2) : '';
+      document.getElementById('expenseCategory').value = parsed.category || 'others';
+
+      if (parsed.date) {
+        document.getElementById('expenseDay').value   = parsed.date.d;
+        document.getElementById('expenseMonth').value = parsed.date.m;
+        document.getElementById('expenseYear').value  = parsed.date.y;
+      } else {
+        document.getElementById('expenseDay').value   = now.getDate();
+        document.getElementById('expenseMonth').value = now.getMonth() + 1;
+        document.getElementById('expenseYear').value  = now.getFullYear();
+      }
+
+      document.getElementById('scanBanner').classList.add('visible');
+      document.getElementById('addExpenseModal').classList.add('open');
+      setTimeout(() => document.getElementById('expenseName').focus(), 80);
+    }
+
+    document.getElementById('expenseDay').addEventListener('input', e => {
+      if (e.target.value.length === 2) document.getElementById('expenseMonth').focus();
+    });
+    document.getElementById('expenseMonth').addEventListener('input', e => {
+      if (e.target.value.length === 2) document.getElementById('expenseYear').focus();
+    });
+    document.getElementById('expenseYear').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveExpense();
+      if (e.key === 'Escape') closeAddExpenseModal();
+    });
+  </script>
+</body>
+</html>
