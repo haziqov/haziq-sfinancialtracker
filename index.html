@@ -272,6 +272,63 @@
     }
     .scan-banner.visible { display: block; }
 
+    /* ── Panel B (Overtime Estimator) ── */
+    .panel-b {
+      width: 270px; flex-shrink: 0;
+      background: rgba(14,14,14,0.9); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 14px;
+      display: flex; flex-direction: column; overflow: hidden;
+      max-height: calc(100vh - 245px);
+      margin-left: 1rem;
+    }
+    .pb-rate-section {
+      flex-shrink: 0; padding: 0.85rem 1.25rem 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .pb-rate-row { display: flex; justify-content: space-between; align-items: center; padding: 0.2rem 0; }
+    .pb-rate-label { font-size: 0.68rem; color: #555; }
+    .pb-rate-value { font-size: 0.72rem; font-weight: 600; color: #888; }
+    .pb-rate-highlight { color: #e2e8f0 !important; }
+    .pb-work-input {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px; color: #e2e8f0; font-size: 0.72rem; font-family: inherit;
+      width: 46px; text-align: center; padding: 0.18rem 0.25rem; outline: none;
+    }
+    .pb-work-input:focus { border-color: rgba(239,68,68,0.35); }
+    .pb-ot-section { flex: 1; display: flex; flex-direction: column; padding: 0.75rem 1.25rem 0.85rem; overflow: hidden; }
+    .pb-section-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #333; margin-bottom: 0.5rem; flex-shrink: 0; }
+    .pb-add-btn {
+      flex-shrink: 0; width: 100%; padding: 0.42rem;
+      background: rgba(239,68,68,0.06); border: 1px dashed rgba(239,68,68,0.22);
+      border-radius: 8px; color: #ef4444; font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.04em; font-family: inherit; cursor: pointer;
+      transition: all 0.15s; margin-bottom: 0.6rem;
+    }
+    .pb-add-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.45); }
+    .pb-ot-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+    .pb-ot-row {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.38rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-shrink: 0;
+    }
+    .pb-ot-row:last-child { border-bottom: none; }
+    .pb-ot-info { flex: 1; min-width: 0; }
+    .pb-ot-type { font-size: 0.68rem; display: block; }
+    .pb-ot-hrs { font-size: 0.59rem; color: #444; display: block; margin-top: 0.05rem; }
+    .pb-ot-pay { font-size: 0.7rem; font-weight: 600; color: #22c55e; flex-shrink: 0; }
+    .pb-ot-del { width: 14px; height: 14px; background: none; border: none; color: transparent; font-size: 0.85rem; cursor: pointer; padding: 0; font-family: inherit; line-height: 1; transition: color 0.15s; flex-shrink: 0; }
+    .pb-ot-row:hover .pb-ot-del { color: #ef4444; }
+    .pb-ot-empty { font-size: 0.7rem; color: #2a2a2a; text-align: center; padding: 1rem 0; }
+    .pb-total-box {
+      flex-shrink: 0; margin-top: 0.5rem;
+      background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.12);
+      border-radius: 10px; padding: 0.65rem 0.9rem;
+    }
+    .pb-total-row { display: flex; justify-content: space-between; align-items: center; }
+    .pb-total-label { font-size: 0.68rem; color: #555; }
+    .pb-total-value { font-size: 0.72rem; font-weight: 600; }
+    .pb-total-divider { height: 1px; background: rgba(239,68,68,0.12); margin: 0.45rem 0; }
+    .pb-total-main { font-size: 0.9rem; font-weight: 700; color: #ef4444; }
+
     /* Expense modal extras */
     .modal-field-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #444; margin: 0.7rem 0 0.3rem; }
     .modal-select { background: transparent; border: none; outline: none; color: #f0f0f0; font-size: 0.95rem; font-weight: 600; font-family: inherit; width: 100%; cursor: pointer; appearance: none; -webkit-appearance: none; }
@@ -399,6 +456,20 @@
       </div>
       <div class="panel-body" id="panelABody"></div>
     </aside>
+
+    <aside class="panel-b">
+      <div class="panel-header">
+        <div class="panel-label">
+          <div class="panel-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <span class="panel-name">Overtime Estimator</span>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;" id="panelBBody"></div>
+    </aside>
   </div>
 
   <!-- Salary modal -->
@@ -481,6 +552,49 @@
     </div>
   </div>
 
+  <!-- Add OT modal -->
+  <div class="modal-overlay" id="addOtModal" onclick="if(event.target===this)closeAddOtModal()">
+    <div class="modal" style="width:340px;">
+      <div class="modal-icon">⏱️</div>
+      <div class="modal-title">Log Overtime</div>
+      <div class="modal-sub" style="margin-bottom:0;"><span id="ot-modal-month" style="color:#ef4444;font-weight:600;"></span></div>
+      <div class="modal-field-label">OT Type</div>
+      <div class="modal-input-wrap" style="margin-bottom:0;">
+        <select class="modal-select" id="otType" onchange="updateOtTypeUI()">
+          <option value="normal">Normal Day OT — after 6pm (1.5×)</option>
+          <option value="rest">Rest Day — Sat / Sun (2.0×)</option>
+          <option value="holiday">Public Holiday (3.0×)</option>
+        </select>
+      </div>
+      <div class="modal-field-label">Date</div>
+      <div class="modal-input-wrap" style="gap:0.3rem;align-items:center;margin-bottom:0;">
+        <input class="modal-input" id="otDay"   type="text" inputmode="numeric" maxlength="2" placeholder="DD"   style="width:28px;text-align:center;" />
+        <span style="color:#444;flex-shrink:0;">/</span>
+        <input class="modal-input" id="otMonth" type="text" inputmode="numeric" maxlength="2" placeholder="MM"   style="width:28px;text-align:center;" />
+        <span style="color:#444;flex-shrink:0;">/</span>
+        <input class="modal-input" id="otYear"  type="text" inputmode="numeric" maxlength="4" placeholder="YYYY" style="width:50px;text-align:center;" />
+      </div>
+      <div id="otEndTimeWrap">
+        <div class="modal-field-label">OT End Time <span style="color:#333;font-size:0.55rem;text-transform:none;letter-spacing:0;font-weight:400;">(OT starts 6:00 PM)</span></div>
+        <div class="modal-input-wrap" style="margin-bottom:0;">
+          <input class="modal-input" id="otEndTime" type="time" style="color-scheme:dark;" value="21:00" oninput="updateOtPayPreview()" />
+        </div>
+      </div>
+      <div id="otHoursWrap" style="display:none;">
+        <div class="modal-field-label">Hours Worked</div>
+        <div class="modal-input-wrap" style="margin-bottom:0;">
+          <input class="modal-input" id="otHours" type="number" min="0.5" max="24" step="0.5" placeholder="e.g. 8" oninput="updateOtPayPreview()" />
+          <span class="modal-currency">hrs</span>
+        </div>
+      </div>
+      <div id="otPayPreview" style="display:none;margin-top:0.65rem;padding:0.45rem 0.75rem;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.18);border-radius:8px;font-size:0.72rem;color:#666;">
+        Est. OT pay: <span id="otPayAmt" style="color:#22c55e;font-weight:700;"></span>
+        &nbsp;<span id="otHrsCalc" style="color:#444;"></span>
+      </div>
+      <button class="modal-save" onclick="saveOtEntry()" style="margin-top:1rem;">Add OT</button>
+    </div>
+  </div>
+
   <!-- Edit salary modal -->
   <div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEditModal()">
     <div class="modal">
@@ -548,6 +662,7 @@
       document.getElementById('income-amount').textContent =
         Number(val).toLocaleString('en-MY', { minimumFractionDigits: 2 });
       if (typeof renderPanelA === 'function') renderPanelA();
+      if (typeof renderPanelB === 'function') renderPanelB();
     }
 
     // Load current month salary (with legacy key migration)
@@ -858,7 +973,7 @@
     });
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') { closeExpandModal(); closeEditModal(); closeAddExpenseModal(); }
+      if (e.key === 'Escape') { closeExpandModal(); closeEditModal(); closeAddExpenseModal(); closeAddOtModal(); }
     });
 
     // ─── Panel A: Expense Tracker ───
@@ -986,10 +1101,16 @@
       if (e.key === 'Escape') closeAddExpenseModal();
     });
     // ─── Receipt scanning (image OCR + PDF) ───
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
 
     async function processReceipt(file) {
+      if (typeof pdfjsLib === 'undefined' && typeof Tesseract === 'undefined') {
+        alert('Receipt scanning requires an internet connection to load the scanning libraries.');
+        return;
+      }
       const btn = document.getElementById('scanReceiptBtn');
       if (btn) { btn.textContent = '⏳ Scanning...'; btn.disabled = true; }
       try {
@@ -997,11 +1118,13 @@
         if (file.type === 'application/pdf') {
           text = await extractPdfText(file);
           if (text.replace(/\s/g, '').length < 40) {
+            if (typeof Tesseract === 'undefined') throw new Error('Tesseract not loaded');
             const canvas = await renderPdfToCanvas(file);
             const result = await Tesseract.recognize(canvas, 'eng', { logger: () => {} });
             text = result.data.text;
           }
         } else {
+          if (typeof Tesseract === 'undefined') throw new Error('Tesseract not loaded');
           const result = await Tesseract.recognize(file, 'eng', { logger: () => {} });
           text = result.data.text;
         }
@@ -1212,6 +1335,240 @@
       if (e.key === 'Enter') saveExpense();
       if (e.key === 'Escape') closeAddExpenseModal();
     });
+
+    // ─── Panel B: Overtime Estimator ───
+    const OT_KEY = 'mft_ot_' + currentMonthName.toLowerCase() + '_' + currentYear;
+    const OT_SETTINGS_KEY = 'mft_ot_settings';
+
+    const OT_TYPES = {
+      normal:  { label: 'Normal Day OT',  sub: 'After 6pm weekday', mult: 1.5, color: '#3b82f6' },
+      rest:    { label: 'Rest Day OT',    sub: 'Sat / Sun',          mult: 2.0, color: '#a855f7' },
+      holiday: { label: 'Public Holiday', sub: 'Gazetted holiday',   mult: 3.0, color: '#f97316' },
+    };
+
+    const OT_RATE_OVERRIDE_KEY = 'mft_ot_rate_override';
+
+    function setHourlyRateOverride(val) {
+      const v = parseFloat(val);
+      if (!isNaN(v) && v > 0) localStorage.setItem(OT_RATE_OVERRIDE_KEY, v.toFixed(4));
+      else localStorage.removeItem(OT_RATE_OVERRIDE_KEY);
+      renderPanelB();
+    }
+
+    function loadOtSettings() {
+      try { return JSON.parse(localStorage.getItem(OT_SETTINGS_KEY)) || { days: 26, hours: 8 }; }
+      catch { return { days: 26, hours: 8 }; }
+    }
+
+    function loadOtEntries() {
+      try { return JSON.parse(localStorage.getItem(OT_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveOtEntries(entries) {
+      localStorage.setItem(OT_KEY, JSON.stringify(entries));
+    }
+
+    function renderPanelB() {
+      const settings = loadOtSettings();
+      const entries  = loadOtEntries();
+      const salary   = parseFloat(localStorage.getItem(salaryKey)) || 0;
+      const rateOverride = parseFloat(localStorage.getItem(OT_RATE_OVERRIDE_KEY));
+      const autoRate = salary > 0 && settings.days > 0 && settings.hours > 0
+        ? salary / (settings.days * settings.hours) : 0;
+      const hourlyRate = (!isNaN(rateOverride) && rateOverride > 0) ? rateOverride : autoRate;
+      const isManualRate = !isNaN(rateOverride) && rateOverride > 0;
+      const fmt = v => v.toLocaleString('en-MY', { minimumFractionDigits: 2 });
+
+      const totalOtPay = entries.reduce((sum, e) => {
+        const t = OT_TYPES[e.type] || OT_TYPES.normal;
+        return sum + e.hours * hourlyRate * t.mult;
+      }, 0);
+      const totalOtHours = entries.reduce((sum, e) => sum + e.hours, 0);
+      const estimatedTotal = salary + totalOtPay;
+
+      // Breakdown by type (only types that have entries)
+      const typeBreakdown = Object.entries(OT_TYPES).map(([key, t]) => {
+        const es = entries.filter(e => e.type === key);
+        if (!es.length) return null;
+        const hrs = es.reduce((s, e) => s + e.hours, 0);
+        const pay = hrs * hourlyRate * t.mult;
+        return { label: t.label, color: t.color, hrs, pay };
+      }).filter(Boolean);
+
+      const rowsHtml = entries.length === 0
+        ? '<div class="pb-ot-empty">No OT logged yet</div>'
+        : [...entries].reverse().map(e => {
+            const t = OT_TYPES[e.type] || OT_TYPES.normal;
+            const pay = e.hours * hourlyRate * t.mult;
+            const dateStr = e.date
+              ? new Date(e.date + 'T00:00:00').toLocaleDateString('en-MY', { day: 'numeric', month: 'short' })
+              : '';
+            return `
+              <div class="pb-ot-row">
+                <div class="pb-ot-info">
+                  <span class="pb-ot-type" style="color:${t.color};">${t.label}</span>
+                  <span class="pb-ot-hrs">${dateStr ? dateStr + ' · ' : ''}${e.hours} hrs · ${t.mult}×</span>
+                </div>
+                <span class="pb-ot-pay">+RM ${fmt(pay)}</span>
+                <button class="pb-ot-del" onclick="deleteOtEntry(${e.id})">×</button>
+              </div>`;
+          }).join('');
+
+      document.getElementById('panelBBody').innerHTML = `
+        <div class="pb-rate-section">
+          <div class="pb-rate-row">
+            <span class="pb-rate-label">Base Salary</span>
+            <span class="pb-rate-value pb-rate-highlight">RM ${fmt(salary)}</span>
+          </div>
+          <div class="pb-rate-row">
+            <span class="pb-rate-label">Work days / month</span>
+            <input class="pb-work-input" type="number" min="1" max="31" value="${settings.days}"
+              onchange="updateOtSetting('days', this.value)" />
+          </div>
+          <div class="pb-rate-row">
+            <span class="pb-rate-label">Hours / day</span>
+            <input class="pb-work-input" type="number" min="1" max="24" value="${settings.hours}"
+              onchange="updateOtSetting('hours', this.value)" />
+          </div>
+          <div class="pb-rate-row" style="margin-top:0.35rem;padding-top:0.35rem;border-top:1px solid rgba(255,255,255,0.04);">
+            <span class="pb-rate-label">Hourly Rate ${isManualRate ? '<span style="font-size:0.55rem;color:#ef4444;margin-left:0.2rem;">manual</span>' : '<span style="font-size:0.55rem;color:#333;margin-left:0.2rem;">auto</span>'}</span>
+            <div style="display:flex;align-items:center;gap:0.25rem;">
+              <span style="font-size:0.65rem;color:#444;">RM</span>
+              <input class="pb-work-input" style="width:62px;" type="number" min="0" step="0.01"
+                value="${hourlyRate > 0 ? hourlyRate.toFixed(2) : ''}"
+                placeholder="${autoRate > 0 ? autoRate.toFixed(2) : '0.00'}"
+                onchange="setHourlyRateOverride(this.value)"
+                title="Edit to override. Clear to revert to auto." />
+              <span style="font-size:0.65rem;color:#444;">/hr</span>
+            </div>
+          </div>
+        </div>
+        <div class="pb-ot-section">
+          <div class="pb-section-label">OT Log — ${currentMonthName}</div>
+          <button class="pb-add-btn" onclick="openAddOtModal()">+ Log Overtime</button>
+          <div class="pb-ot-list">${rowsHtml}</div>
+          <div class="pb-total-box">
+            ${typeBreakdown.map(b => `
+              <div class="pb-total-row" style="margin-bottom:0.18rem;">
+                <span class="pb-total-label" style="color:${b.color};">${b.label}</span>
+                <span class="pb-total-value" style="color:#555;">${b.hrs} hrs &rarr; <span style="color:#22c55e;">+RM ${fmt(b.pay)}</span></span>
+              </div>`).join('')}
+            ${typeBreakdown.length > 0 ? '<div class="pb-total-divider"></div>' : ''}
+            <div class="pb-total-row">
+              <span class="pb-total-label">Total OT</span>
+              <span class="pb-total-value">${totalOtHours.toFixed(1)} hrs &nbsp;<span style="color:#22c55e;font-weight:600;">+RM ${fmt(totalOtPay)}</span></span>
+            </div>
+            <div class="pb-total-divider"></div>
+            <div class="pb-total-row">
+              <span class="pb-total-label" style="color:#aaa;font-weight:600;">Est. Total</span>
+              <span class="pb-total-main">RM ${fmt(estimatedTotal)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateOtSetting(key, val) {
+      const settings = loadOtSettings();
+      settings[key] = Math.max(1, parseFloat(val) || (key === 'days' ? 26 : 8));
+      localStorage.setItem(OT_SETTINGS_KEY, JSON.stringify(settings));
+      renderPanelB();
+    }
+
+    function deleteOtEntry(id) {
+      saveOtEntries(loadOtEntries().filter(e => e.id !== id));
+      renderPanelB();
+    }
+
+    function calcOtHoursFromModal() {
+      const type = document.getElementById('otType').value;
+      if (type === 'normal') {
+        const t = document.getElementById('otEndTime').value;
+        if (!t) return 0;
+        const [h, m] = t.split(':').map(Number);
+        const hrs = Math.max(0, (h + m / 60) - 18);
+        return Math.round(hrs * 2) / 2; // nearest 0.5
+      }
+      return parseFloat(document.getElementById('otHours').value) || 0;
+    }
+
+    function updateOtTypeUI() {
+      const isNormal = document.getElementById('otType').value === 'normal';
+      document.getElementById('otEndTimeWrap').style.display = isNormal ? '' : 'none';
+      document.getElementById('otHoursWrap').style.display   = isNormal ? 'none' : '';
+      updateOtPayPreview();
+    }
+
+    function updateOtPayPreview() {
+      const type  = document.getElementById('otType').value;
+      const hours = calcOtHoursFromModal();
+      const t     = OT_TYPES[type] || OT_TYPES.normal;
+      const salary = parseFloat(localStorage.getItem(salaryKey)) || 0;
+      const settings = loadOtSettings();
+      const rateOverride = parseFloat(localStorage.getItem(OT_RATE_OVERRIDE_KEY));
+      const autoRate = salary > 0 && settings.days > 0 && settings.hours > 0
+        ? salary / (settings.days * settings.hours) : 0;
+      const rate = (!isNaN(rateOverride) && rateOverride > 0) ? rateOverride : autoRate;
+      const pay  = hours * rate * t.mult;
+      const preview = document.getElementById('otPayPreview');
+      if (hours > 0 && pay > 0) {
+        document.getElementById('otPayAmt').textContent = 'RM ' + pay.toLocaleString('en-MY', { minimumFractionDigits: 2 });
+        document.getElementById('otHrsCalc').textContent = '(' + hours + ' hrs)';
+        preview.style.display = '';
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+
+    function openAddOtModal() {
+      document.getElementById('ot-modal-month').textContent = currentMonthName + ' ' + currentYear;
+      document.getElementById('otType').value    = 'normal';
+      document.getElementById('otDay').value     = now.getDate();
+      document.getElementById('otMonth').value   = now.getMonth() + 1;
+      document.getElementById('otYear').value    = now.getFullYear();
+      document.getElementById('otEndTime').value = '21:00';
+      document.getElementById('otHours').value   = '';
+      updateOtTypeUI();
+      document.getElementById('addOtModal').classList.add('open');
+      setTimeout(() => document.getElementById('otEndTime').focus(), 80);
+    }
+
+    function closeAddOtModal() {
+      document.getElementById('addOtModal').classList.remove('open');
+    }
+
+    function saveOtEntry() {
+      const type  = document.getElementById('otType').value;
+      const hours = calcOtHoursFromModal();
+      if (!type || isNaN(hours) || hours <= 0) return;
+      const dd   = document.getElementById('otDay').value.padStart(2, '0');
+      const mm   = document.getElementById('otMonth').value.padStart(2, '0');
+      const yyyy = document.getElementById('otYear').value;
+      const date = yyyy && mm && dd ? `${yyyy}-${mm}-${dd}` : '';
+      const entries = loadOtEntries();
+      entries.push({ id: Date.now(), type, hours, date });
+      saveOtEntries(entries);
+      renderPanelB();
+      closeAddOtModal();
+    }
+
+    document.getElementById('otDay').addEventListener('input', e => {
+      if (e.target.value.length === 2) document.getElementById('otMonth').focus();
+    });
+    document.getElementById('otMonth').addEventListener('input', e => {
+      if (e.target.value.length === 2) document.getElementById('otYear').focus();
+    });
+    document.getElementById('otHours').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveOtEntry();
+      if (e.key === 'Escape') closeAddOtModal();
+    });
+    document.getElementById('otEndTime').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveOtEntry();
+      if (e.key === 'Escape') closeAddOtModal();
+    });
+
+    renderPanelB();
   </script>
 </body>
 </html>
