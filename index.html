@@ -1021,6 +1021,23 @@
       await processReceipt(file);
     }
 
+    // ─── iOS Shortcut bridge: receipt passed via URL hash ───
+    (function checkUrlShare() {
+      if (!location.hash || !location.hash.includes('receipt=')) return;
+      try {
+        const params = new URLSearchParams(location.hash.slice(1));
+        const b64  = params.get('receipt');
+        const mime = params.get('type') || 'application/pdf';
+        if (!b64) return;
+        history.replaceState(null, '', location.pathname); // clean URL
+        const binary = atob(b64.replace(/ /g, '+'));
+        const bytes  = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const file = new File([bytes], 'receipt', { type: mime });
+        setTimeout(() => processReceipt(file), 600);
+      } catch (e) { console.error('URL share decode failed:', e); }
+    })();
+
     // ─── PWA: service worker + share target ───
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').catch(err =>
