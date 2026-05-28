@@ -39,7 +39,7 @@
     /* Header */
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-      padding: 0 2rem; height: 76px;
+      padding: env(safe-area-inset-top, 0px) 2rem 0; height: calc(76px + env(safe-area-inset-top, 0px));
       display: flex; align-items: center; justify-content: space-between;
       background: rgba(8,8,8,0.75);
       backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
@@ -59,47 +59,107 @@
     .logo-wordmark { display: flex; flex-direction: column; line-height: 1; }
     .logo-wordmark-main { font-size: 0.88rem; font-weight: 700; color: #e2e8f0; letter-spacing: -0.01em; }
     .logo-wordmark-sub { font-size: 0.58rem; font-weight: 500; color: #334155; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
-    .header-center { flex: 1; padding: 0 2rem; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
-    .header-greeting { display: flex; flex-direction: column; justify-content: center; }
+    .header-center {
+      flex: 1; padding: 0 2rem;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0.22rem;
+    }
+    .header-greeting { display: flex; align-items: center; gap: 0.5rem; }
     .welcome-pill {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 99px; padding: 2px 10px 2px 7px;
-      font-size: 0.62rem; color: #64748b; font-weight: 500;
-      width: fit-content; margin-bottom: 0.22rem;
+      display: inline-flex; align-items: center; gap: 0.38rem;
+      font-size: 0.75rem; color: #94a3b8; font-weight: 400; letter-spacing: 0.01em;
     }
     .welcome-pill-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: #22c55e; box-shadow: 0 0 7px #22c55e;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #22c55e; box-shadow: 0 0 8px #22c55e88;
       animation: pillPulse 2.4s ease-in-out infinite; flex-shrink: 0;
     }
     @keyframes pillPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.8)} }
-    .welcome-name { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.045em; line-height: 1; color: #fff; }
-    .welcome-date-line { font-size: 0.65rem; color: #334155; font-weight: 400; margin-top: 0.18rem; }
+    .welcome-name {
+      font-size: 1.7rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1;
+      background: linear-gradient(120deg, #ffffff 20%, #fca5a5 60%, #ef4444 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .welcome-date-line {
+      font-size: 0.68rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+      background: linear-gradient(90deg, #64748b, #94a3b8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
     /* Header quick stats */
     .header-stats {
       display: flex; align-items: stretch;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 14px; overflow: hidden; flex-shrink: 0;
+      border-radius: 10px; overflow: hidden; flex-shrink: 0;
     }
     .hstat {
       display: flex; flex-direction: column; justify-content: center;
-      padding: 8px 20px;
+      padding: 5px 16px;
       border-right: 1px solid rgba(255,255,255,0.06);
     }
     .hstat:last-child { border-right: none; }
-    .hstat-label { font-size: 0.57rem; color: #334155; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
-    .hstat-val { font-size: 0.9rem; font-weight: 700; color: #f1f5f9; margin-top: 3px; }
+    .hstat-label { font-size: 0.52rem; color: #334155; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+    .hstat-val { font-size: 0.82rem; font-weight: 700; color: #f1f5f9; margin-top: 2px; }
     .hstat-val.red { color: #ef4444; }
     .hstat-val.green { color: #22c55e; }
-    .header-right { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
-    .month-pill {
-      background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
-      border-radius: 20px; padding: 4px 14px;
-      font-size: 0.8rem; font-weight: 500; color: #fca5a5;
+    .header-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; margin-left: auto; }
+    .header-chip {
+      display: inline-flex; align-items: center; gap: 0.38rem;
+      padding: 5px 13px; border-radius: 10px;
+      font-size: 0.72rem; font-weight: 700; white-space: nowrap; flex-shrink: 0;
+      transition: box-shadow 0.3s, background 0.3s; letter-spacing: 0.02em;
     }
+    .header-chip-work {
+      background: linear-gradient(135deg, rgba(100,116,139,0.18) 0%, rgba(71,85,105,0.1) 100%);
+      border: 1px solid rgba(100,116,139,0.28); border-left: 2px solid rgba(148,163,184,0.5);
+      color: #94a3b8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .header-chip-off {
+      background: linear-gradient(135deg, rgba(6,182,212,0.16) 0%, rgba(6,182,212,0.07) 100%);
+      border: 1px solid rgba(6,182,212,0.3); border-left: 2px solid rgba(6,182,212,0.65);
+      color: #22d3ee;
+      box-shadow: 0 2px 12px rgba(6,182,212,0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .header-chip-rest {
+      background: linear-gradient(135deg, rgba(168,85,247,0.16) 0%, rgba(168,85,247,0.07) 100%);
+      border: 1px solid rgba(168,85,247,0.3); border-left: 2px solid rgba(168,85,247,0.65);
+      color: #c084fc;
+      box-shadow: 0 2px 12px rgba(168,85,247,0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .header-chip-sal {
+      background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.05) 100%);
+      border: 1px solid rgba(34,197,94,0.25); border-left: 2px solid rgba(34,197,94,0.55);
+      color: #4ade80;
+      box-shadow: 0 2px 10px rgba(34,197,94,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .header-chip-sal-today {
+      background: linear-gradient(135deg, rgba(34,197,94,0.28) 0%, rgba(16,185,129,0.18) 100%);
+      border: 1px solid rgba(34,197,94,0.5); border-left: 2px solid #22c55e;
+      color: #86efac;
+      box-shadow: 0 0 22px rgba(34,197,94,0.28), 0 2px 8px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+      animation: salChipPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes salChipPulse {
+      0%,100% { box-shadow: 0 0 22px rgba(34,197,94,0.28), 0 2px 8px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.1); }
+      50%     { box-shadow: 0 0 36px rgba(34,197,94,0.45), 0 4px 18px rgba(34,197,94,0.28), inset 0 1px 0 rgba(255,255,255,0.1); }
+    }
+    .month-pill {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35);
+      border-radius: 10px; padding: 5px 10px 5px 8px;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 8px rgba(239,68,68,0.1);
+    }
+    .month-pill:hover {
+      background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.6);
+      box-shadow: 0 4px 14px rgba(239,68,68,0.22);
+    }
+    .month-pill-icon { font-size: 1.45rem; line-height: 1; flex-shrink: 0; }
+    .month-pill-text { display: flex; flex-direction: column; line-height: 1; gap: 2px; }
+    .month-pill-label { font-size: 0.8rem; font-weight: 600; color: #fca5a5; }
+    .month-pill-hint { font-size: 0.56rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.07em; }
+    .month-pill-caret { font-size: 0.58rem; color: #64748b; margin-left: 2px; align-self: center; }
     /* Calendar Popup */
     .cal-popup {
       display: none; position: absolute; top: calc(100% + 10px); right: 0;
@@ -123,30 +183,108 @@
     .cal-offday-sm  { background: rgba(6,182,212,0.18); color: #06b6d4 !important; border-radius: 5px; }
     .cal-restday-sm { background: rgba(168,85,247,0.18); color: #a855f7 !important; border-radius: 5px; }
     .cal-ph-sm      { color: #fb923c !important; font-weight: 600; }
+    /* today must always win over every other small-cal class */
+    .cal-cell.cal-today { background: #ef4444 !important; color: #fff !important; font-weight: 700; outline: none !important; }
     .cal-legend { display:flex; gap:0.75rem; margin-top:0.65rem; padding-top:0.55rem; border-top:1px solid rgba(255,255,255,0.07); }
     .cal-legend-item { display:flex; align-items:center; gap:0.3rem; font-size:0.6rem; color:#64748b; }
     .cal-legend-dot { width:8px; height:8px; border-radius:3px; flex-shrink:0; }
     /* Expanded calendar modal */
-    .cal-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; align-items:center; justify-content:center; }
+    .cal-modal-overlay {
+      display:none; position:fixed; inset:0; z-index:300;
+      align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.6);
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    }
     .cal-modal-overlay.open { display:flex; }
-    .cal-modal-box { background:#0f172a; border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:1.75rem 2rem; min-width:340px; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
-    .cal-modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.1rem; }
-    .cal-modal-title { font-size:1.1rem; font-weight:700; color:#f1f5f9; }
-    .cal-modal-close { background:none; border:none; color:#64748b; cursor:pointer; font-size:1.1rem; }
-    .cal-modal-close:hover { color:#f1f5f9; }
-    .cal-nav-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#94a3b8; border-radius:7px; width:28px; height:28px; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; }
-    .cal-nav-btn:hover { background:rgba(255,255,255,0.12); color:#f1f5f9; }
-    .cal-big-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-    .cal-big-hdr { font-size:0.7rem; color:#475569; text-align:center; padding:4px 0; font-weight:600; }
-    .cal-big-cell { font-size:0.85rem; color:#64748b; text-align:center; padding:7px 3px; border-radius:8px; line-height:1.2; position:relative; }
-    .cal-big-cell.cal-work { color:#cbd5e1; }
-    .cal-big-cell.cal-offday-day { background:rgba(6,182,212,0.15); color:#06b6d4 !important; font-weight:600; border:1px solid rgba(6,182,212,0.3); }
-    .cal-big-cell.cal-restday-day { background:rgba(168,85,247,0.15); color:#a855f7 !important; font-weight:600; border:1px solid rgba(168,85,247,0.3); }
-    .cal-big-cell.cal-ph-day { background:rgba(251,146,60,0.15); color:#fb923c !important; font-weight:600; border:1px solid rgba(251,146,60,0.3); }
-    .cal-big-cell.cal-salary { outline:2px solid #22c55e; outline-offset:-2px; font-weight:700; }
-    .cal-big-cell.cal-today { background:#ef4444 !important; color:#fff !important; font-weight:700; border:none !important; outline:none !important; }
-    .cal-salary-note { padding:0.55rem 0.8rem; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); border-radius:8px; font-size:0.78rem; color:#22c55e; }
-    .cal-ph-tip { font-size:0.55rem; color:#fb923c; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+    @keyframes calModalIn { from{opacity:0;transform:scale(0.94) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .cal-modal-box {
+      background: linear-gradient(155deg, #131c2e 0%, #0a0f1e 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px; padding: 1.75rem 2rem; min-width: 340px;
+      box-shadow: 0 50px 120px rgba(0,0,0,0.85), 0 0 0 1px rgba(239,68,68,0.07), inset 0 1px 0 rgba(255,255,255,0.07);
+      position: relative; overflow: hidden;
+      animation: calModalIn 0.22s cubic-bezier(0.34,1.2,0.64,1);
+    }
+    .cal-modal-box::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, #ef4444 0%, #f97316 50%, #eab308 100%);
+    }
+    .cal-modal-header {
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4rem;
+    }
+    .cal-modal-title {
+      font-size:1.25rem; font-weight:800; letter-spacing:-0.03em;
+      background: linear-gradient(90deg, #f1f5f9 30%, #94a3b8 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .cal-modal-close {
+      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+      border-radius:8px; color:#64748b; cursor:pointer; font-size:0.8rem;
+      width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+      transition:all 0.2s; margin-left:0.5rem;
+    }
+    .cal-modal-close:hover { color:#f1f5f9; background:rgba(255,255,255,0.12); }
+    .cal-nav-btn {
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+      color:#64748b; border-radius:9px; width:34px; height:34px;
+      cursor:pointer; font-size:1.15rem; display:flex; align-items:center; justify-content:center;
+      transition:all 0.2s;
+    }
+    .cal-nav-btn:hover { background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.35); color:#fca5a5; }
+    .cal-big-grid { display:grid; grid-template-columns:repeat(7,1fr); grid-template-rows:auto repeat(6,38px); gap:5px; }
+    #calExpandGrid { min-height:268px; }
+    .cal-big-hdr {
+      font-size:0.62rem; color:#334155; text-align:center; padding:5px 0 8px;
+      font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
+    }
+    .cal-big-cell {
+      font-size:0.88rem; color:#334155; text-align:center;
+      padding:9px 4px; border-radius:10px; line-height:1.2; position:relative;
+      transition:background 0.15s, color 0.15s;
+    }
+    .cal-big-cell.cal-work { color:#94a3b8; }
+    .cal-big-cell.cal-work:hover { background:rgba(255,255,255,0.05); color:#e2e8f0; }
+    .cal-big-cell.cal-offday-day { background:rgba(6,182,212,0.12); color:#06b6d4 !important; font-weight:600; border:1px solid rgba(6,182,212,0.25); }
+    .cal-big-cell.cal-restday-day { background:rgba(168,85,247,0.12); color:#a855f7 !important; font-weight:600; border:1px solid rgba(168,85,247,0.25); }
+    .cal-big-cell.cal-ph-day { background:rgba(251,146,60,0.12); color:#fb923c !important; font-weight:600; border:1px solid rgba(251,146,60,0.25); }
+    .cal-big-cell.cal-salary {
+      outline:2px solid #22c55e; outline-offset:-2px; font-weight:700;
+      box-shadow:0 0 14px rgba(34,197,94,0.18);
+    }
+    .cal-big-cell.cal-today {
+      background:linear-gradient(135deg,#ef4444,#dc2626) !important;
+      color:#fff !important; font-weight:800; border:none !important; outline:none !important;
+      box-shadow:0 4px 18px rgba(239,68,68,0.45);
+    }
+    .cal-salary-note {
+      padding:0.65rem 1rem; margin-top:1rem;
+      background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2);
+      border-radius:10px; font-size:0.78rem; color:#22c55e;
+      min-height:2.8rem; display:flex; align-items:center;
+    }
+    .cal-ph-tip { font-size:0.5rem; color:#fb923c; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+    /* Calendar config grid */
+    .cal-cfg-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-top:1rem; }
+    .cal-cfg-card { padding:0.9rem 1rem; border:1px solid rgba(255,255,255,0.07); border-radius:12px; background:rgba(255,255,255,0.025); display:flex; flex-direction:column; }
+    .cal-cfg-save { width:100%; padding:0.42rem; border-radius:8px; border:none; color:#fff; font-size:0.8rem; cursor:pointer; font-weight:600; margin-top:auto; }
+    @media (max-width:600px) { .cal-cfg-grid { grid-template-columns:1fr; } }
+    /* Roster pattern UI */
+    .roster-section-label { font-size:0.6rem; color:#475569; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; margin-bottom:0.55rem; }
+    .rp-preset-btn { padding:4px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.09); background:rgba(255,255,255,0.04); color:#64748b; font-size:0.72rem; cursor:pointer; font-weight:600; transition:all 0.15s; white-space:nowrap; }
+    .rp-preset-btn:hover { border-color:rgba(59,130,246,0.35); color:#93c5fd; background:rgba(59,130,246,0.08); }
+    .rp-preset-btn.active { border-color:rgba(59,130,246,0.5); color:#60a5fa; background:rgba(59,130,246,0.15); }
+    .rp-input-group { flex:1; display:flex; flex-direction:column; gap:4px; }
+    .rp-input-label { font-size:0.58rem; color:#475569; text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
+    .rp-input { width:100%; padding:0.35rem 0.5rem; border-radius:7px; border:1px solid rgba(255,255,255,0.1); background:#0f172a; color:#f1f5f9; font-size:0.9rem; text-align:center; }
+    .rp-input option { background:#0f172a; color:#f1f5f9; }
+    .rp-block { width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:700; flex-shrink:0; }
+    .rp-work { background:rgba(100,116,139,0.18); color:#94a3b8; border:1px solid rgba(100,116,139,0.28); }
+    .rp-off  { background:rgba(6,182,212,0.15); color:#06b6d4; border:1px solid rgba(6,182,212,0.28); }
+    .rp-rest { background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.28); }
+    /* Legend chips */
+    .cal-legend { display:flex; flex-wrap:wrap; gap:0.4rem 0.5rem; margin-top:1rem; padding-top:0.9rem; border-top:1px solid rgba(255,255,255,0.07); }
+    .cal-legend-item { display:flex; align-items:center; gap:0.3rem; font-size:0.62rem; color:#64748b; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:6px; padding:3px 8px; }
+    .cal-legend-dot { width:8px; height:8px; border-radius:3px; flex-shrink:0; }
     .btn-history {
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; color: #94a3b8;
@@ -156,7 +294,7 @@
 
     /* Main layout */
     .app-body {
-      position: fixed; top: 76px; bottom: 0; left: 0; right: 0;
+      position: fixed; top: calc(76px + env(safe-area-inset-top, 0px)); bottom: 0; left: 0; right: 0;
       display: flex; flex-direction: column; overflow: hidden;
     }
 
@@ -180,6 +318,23 @@
     .dash-val.blue { color: #3b82f6; }
     .dash-sub { font-size: 0.72rem; color: #475569; }
 
+    /* Privacy / hide-values toggle */
+    .btn-hide-vals {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 6px 11px; font-size: 1rem; color: #94a3b8;
+      cursor: pointer; transition: all 0.2s; line-height: 1;
+    }
+    .btn-hide-vals:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+    .fin-hidden .btn-hide-vals { color: #ef4444; border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); }
+    .fin-hidden .dash-val,
+    .fin-hidden .hstat-val {
+      filter: blur(7px);
+      user-select: none;
+      pointer-events: none;
+      transition: filter 0.25s;
+    }
+    .dash-val, .hstat-val { transition: filter 0.25s; }
+
     /* Panels row */
     .panels-row {
       flex: 1; display: flex; gap: 0.75rem; overflow: hidden;
@@ -190,7 +345,7 @@
     .panel-budget {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
       border-radius: 16px; display: flex; flex-direction: column; overflow: hidden;
-      flex-shrink: 0; height: 260px;
+      flex: 0 0 220px;
     }
     .budget-list { flex: 1; overflow-y: auto; padding: 0.5rem 1rem; }
     .budget-list::-webkit-scrollbar { width: 4px; }
@@ -214,12 +369,11 @@
       flex: 1; min-width: 0;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
       border-radius: 16px; display: flex; flex-direction: column; overflow: hidden;
-      margin-right: 1rem;
     }
 
     /* Panel B */
     .panel-b {
-      width: 420px; flex-shrink: 0;
+      width: 500px; flex-shrink: 0;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
       border-radius: 16px; display: flex; flex-direction: column; overflow: hidden;
     }
@@ -520,7 +674,7 @@
 
     /* Toast */
     #toast {
-      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      position: fixed; bottom: calc(2rem + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
       background: #1e1e1e; border: 1px solid rgba(255,255,255,0.1);
       border-radius: 12px; padding: 10px 20px; font-size: 0.82rem; color: #e2e8f0;
       z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none;
@@ -530,17 +684,36 @@
     /* Scrollbar for modal */
     .modal-overlay::-webkit-scrollbar { width: 0; }
 
-    /* ── Mobile greeting strip (hidden on desktop) ─── */
+    /* ── Greeting card (mobile only) ─── */
     .mobile-greeting {
-      display: none; align-items: center; justify-content: space-between;
-      padding: 0.75rem 1rem 0; flex-shrink: 0;
+      display: none; flex-direction: column;
+      margin: 0.75rem 1rem 0;
+      background: linear-gradient(135deg, rgba(239,68,68,0.11) 0%, rgba(8,8,8,0) 65%);
+      border: 1px solid rgba(239,68,68,0.18);
+      border-radius: 18px; padding: 1.1rem 1.25rem 1rem;
+      position: relative; overflow: hidden; flex-shrink: 0;
     }
-    .mg-left { display: flex; flex-direction: column; }
-    .mg-greet { font-size: 0.7rem; color: #475569; font-weight: 500; }
-    .mg-name { font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; line-height: 1.1; }
-    .mg-right { display: flex; flex-direction: column; align-items: flex-end; }
-    .mg-period-label { font-size: 0.6rem; color: #334155; text-transform: uppercase; letter-spacing: 0.08em; }
-    .mg-period-val { font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
+    .mg-glow {
+      position: absolute; top: -40px; right: -40px;
+      width: 140px; height: 140px;
+      background: radial-gradient(circle, rgba(239,68,68,0.18), transparent 70%);
+      pointer-events: none;
+    }
+    .mg-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+    .mg-greet { font-size: 0.72rem; color: #64748b; font-weight: 500; }
+    .mg-date-chip {
+      font-size: 0.6rem; color: #475569; font-weight: 500;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 99px; padding: 2px 9px; flex-shrink: 0;
+    }
+    .mg-name { font-size: 1.65rem; font-weight: 800; color: #fff; letter-spacing: -0.045em; line-height: 1; margin-bottom: 0.8rem; }
+    .mg-bottom-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 0.65rem; border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .mg-period-label { font-size: 0.58rem; color: #334155; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.12rem; }
+    .mg-period-val { font-size: 0.8rem; font-weight: 600; color: #94a3b8; }
+    .mg-range { font-size: 0.68rem; color: #475569; font-weight: 500; text-align: right; }
 
     /* ── Mobile panel tab bar (hidden on desktop) ─── */
     .mpanel-tabs {
@@ -562,17 +735,21 @@
     @media (max-width: 768px) {
 
       /* ─ Header ─ */
-      header { height: 56px; padding: 0 1rem; }
+      header { height: calc(56px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 1rem 0; }
       .header-center { display: none; }
       .btn-history { display: none; }
-      .month-pill { font-size: 0.72rem; padding: 3px 10px; }
+      .month-pill { padding: 3px 7px; gap: 0.3rem; }
+      .month-pill-icon { font-size: 1.1rem; }
+      .month-pill-label { font-size: 0.7rem; }
+      .month-pill-hint { display: none; }
       .header-right { gap: 0.5rem; }
+      #headerShiftChip, #headerSalChip { display: none !important; }
 
       /* ─ App body: scrollable column ─ */
-      .app-body { top: 56px; overflow-y: auto; overflow-x: hidden; flex-direction: column; }
+      .app-body { top: calc(56px + env(safe-area-inset-top, 0px)); overflow-y: auto; overflow-x: hidden; flex-direction: column; }
 
       /* ─ Mobile greeting visible ─ */
-      .mobile-greeting { display: flex; }
+      .mobile-greeting { display: flex; flex-direction: column; }
 
       /* ─ Dashboard: 2-column grid ─ */
       .dashboard { padding: 0.75rem 1rem 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
@@ -591,21 +768,21 @@
       .panel-a { margin-right: 0; flex: none; min-height: 420px; }
       .panel-b { width: 100%; flex: none; min-height: 420px; }
 
-      /* ─ Touch targets: always visible ─ */
-      .exp-edit  { opacity: 1 !important; width: 30px; height: 30px; font-size: 13px; }
-      .exp-del   { opacity: 1 !important; width: 30px; height: 30px; font-size: 14px; }
-      .rec-edit  { opacity: 1 !important; width: 30px; height: 30px; font-size: 13px; }
-      .rec-del   { opacity: 1 !important; width: 30px; height: 30px; font-size: 14px; }
+      /* ─ Touch targets: always visible, min 44px tap area ─ */
+      .exp-edit  { opacity: 1 !important; width: 38px; height: 38px; font-size: 14px; }
+      .exp-del   { opacity: 1 !important; width: 38px; height: 38px; font-size: 15px; }
+      .rec-edit  { opacity: 1 !important; width: 38px; height: 38px; font-size: 14px; }
+      .rec-del   { opacity: 1 !important; width: 38px; height: 38px; font-size: 15px; }
       .ot-entry-actions { opacity: 1 !important; }
-      .ot-entry-del { width: 28px; height: 28px; }
+      .ot-entry-del { width: 38px; height: 38px; }
       /* Bigger tap area for icon buttons */
-      .icon-btn { width: 36px; height: 36px; font-size: 15px; }
+      .icon-btn { width: 40px; height: 40px; font-size: 16px; }
 
       /* ─ Modals: bottom sheet on mobile ─ */
       .modal-overlay { align-items: flex-end; }
       .modal {
-        border-radius: 24px 24px 0 0; max-width: 100%; width: 100%;
-        padding: 1.5rem 1.25rem 2rem;
+        border-radius: 24px 24px 0 0; max-width: 100%; width: 100% !important;
+        padding: 1.5rem 1.25rem calc(2rem + env(safe-area-inset-bottom, 0px));
         animation: mSheetUp 0.3s cubic-bezier(0.22,1,0.36,1) both;
       }
       @keyframes mSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -613,7 +790,7 @@
       .hist-modal { border-radius: 24px 24px 0 0; max-height: 90vh; width: 100%; max-width: 100%; }
 
       /* ─ Calendar popup: centred on mobile ─ */
-      .cal-popup { position: fixed; top: 66px; left: 50%; transform: translateX(-50%); right: auto; z-index: 100; }
+      .cal-popup { position: fixed; top: calc(60px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); right: auto; z-index: 100; max-height: calc(100vh - 80px - env(safe-area-inset-top, 0px)); overflow-y: auto; }
 
       /* ─ Profile picker: compact cards ─ */
       .prof-title { font-size: 1.5rem; }
@@ -627,13 +804,14 @@
       .prof-logo { margin-bottom: 2rem; }
 
       /* ─ Cal modal ─ */
-      .cal-modal-box { min-width: unset; width: calc(100vw - 2rem); padding: 1.25rem 1rem; }
+      .cal-modal-box { min-width: unset; width: calc(100vw - 2rem); max-width: calc(100vw - 2rem); padding: 1.25rem 1rem; }
+      .cal-cfg-grid { grid-template-columns: 1fr; }
     }
 
     /* ── Floating Action Button (mobile only) ─────────────── */
     .mobile-fab {
       display: none;
-      position: fixed; bottom: 1.6rem; right: 1.4rem; z-index: 45;
+      position: fixed; bottom: calc(1.6rem + env(safe-area-inset-bottom, 0px)); right: max(1.4rem, env(safe-area-inset-right, 1.4rem)); z-index: 45;
       width: 58px; height: 58px; border-radius: 50%;
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: #fff; border: none; font-size: 2rem; line-height: 1;
@@ -754,16 +932,29 @@
     .prof-add-card:hover .prof-avatar { border-color: rgba(255,255,255,0.3); color: #94a3b8; background: rgba(255,255,255,0.08); }
     .prof-add-card .prof-card-name { color: #475569; }
     .prof-add-card:hover .prof-card-name { color: #94a3b8; }
-    /* Manage link */
-    .prof-manage-link {
-      margin-top: 2.5rem;
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      font-size: 0.75rem; color: #334155; cursor: pointer;
-      padding: 6px 14px; border-radius: 99px;
-      border: 1px solid rgba(255,255,255,0.07);
-      transition: all 0.2s; text-decoration: none;
+    /* Picker bottom actions */
+    .prof-picker-actions {
+      display: flex; gap: 0.75rem; margin-top: 2.8rem;
+      flex-wrap: wrap; justify-content: center;
     }
-    .prof-manage-link:hover { color: #64748b; border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.03); }
+    .prof-manage-link {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      padding: 10px 18px; border-radius: 13px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.03);
+      color: #475569; cursor: pointer;
+      font-size: 0.78rem; font-weight: 600;
+      transition: all 0.22s; letter-spacing: 0.01em;
+    }
+    .prof-manage-link:hover {
+      background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.17); color: #94a3b8;
+      transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .prof-manage-link .pm-icon {
+      width: 27px; height: 27px; border-radius: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center; font-size: 0.82rem; flex-shrink: 0;
+    }
     /* Password prompt / forms */
     .prof-pin-wrap {
       display: flex; flex-direction: column; align-items: center; gap: 1.2rem;
@@ -828,32 +1019,47 @@
     /* Header profile dropdown */
     .prof-dropdown {
       display: none; position: absolute; top: calc(100% + 10px); right: 0;
-      background: rgba(10,12,20,0.96); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px; padding: 0; min-width: 210px; overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8); z-index: 200;
-      backdrop-filter: blur(20px);
+      background: rgba(8,10,18,0.97); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px; padding: 0; min-width: 248px; overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04); z-index: 200;
+      backdrop-filter: blur(24px);
     }
     .prof-dropdown.open { display: block; animation: profFadeUp 0.2s cubic-bezier(0.22,1,0.36,1) both; }
     .prof-drop-header {
-      display: flex; align-items: center; gap: 0.65rem;
-      padding: 14px 14px 12px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 16px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.015);
     }
     .prof-drop-avatar {
-      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.78rem; font-weight: 800; color: #fff;
+      font-size: 0.9rem; font-weight: 800; color: #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.4);
     }
-    .prof-drop-name { font-size: 0.85rem; font-weight: 700; color: #f1f5f9; letter-spacing: -0.01em; }
-    .prof-drop-role { font-size: 0.62rem; color: #334155; }
-    .prof-drop-body { padding: 0.4rem; }
+    .prof-drop-name { font-size: 0.88rem; font-weight: 700; color: #f1f5f9; letter-spacing: -0.01em; }
+    .prof-drop-role { font-size: 0.62rem; color: #334155; margin-top: 1px; }
+    .prof-drop-section {
+      font-size: 0.55rem; font-weight: 700; color: #2d3f55; letter-spacing: 0.13em;
+      text-transform: uppercase; padding: 8px 13px 3px;
+    }
+    .prof-drop-body { padding: 0.5rem 0.5rem 0.3rem; }
     .prof-drop-item {
-      display: flex; align-items: center; gap: 0.6rem; padding: 9px 11px;
+      display: flex; align-items: center; gap: 0.65rem; padding: 9px 10px;
       border-radius: 10px; cursor: pointer; font-size: 0.8rem; color: #64748b;
       transition: all 0.15s;
     }
     .prof-drop-item:hover { background: rgba(255,255,255,0.07); color: #e2e8f0; }
+    .prof-drop-item.danger { color: #64748b; }
     .prof-drop-item.danger:hover { background: rgba(239,68,68,0.1); color: #f87171; }
-    .prof-drop-icon { width: 16px; text-align: center; opacity: 0.7; flex-shrink: 0; }
+    .prof-drop-icon {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.07);
+      transition: all 0.15s;
+    }
+    .prof-drop-item:hover .prof-drop-icon { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.12); }
+    .prof-drop-item.danger:hover .prof-drop-icon { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.2); }
+    .prof-drop-footer { padding: 0.3rem 0.5rem 0.5rem; border-top: 1px solid rgba(255,255,255,0.07); }
     .prof-drop-sep { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 0.3rem 0.4rem; }
     /* Color picker for new profiles */
     .color-picker-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
@@ -918,6 +1124,143 @@
     .sync-btn.primary:hover { background: #4338ca; }
     .sync-btn.ghost { background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); }
     .sync-btn.ghost:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+
+    /* ── First-login Onboarding Overlay ────────────────────── */
+    .onboard-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .onboard-overlay.open { display: flex; animation: calFadeIn 0.28s cubic-bezier(0.22,1,0.36,1); }
+    .onboard-box {
+      background: linear-gradient(155deg, #131c2e 0%, #0a0f1e 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px; width: 100%; max-width: 480px;
+      max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 50px 120px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .onboard-box::-webkit-scrollbar { width: 4px; }
+    .onboard-box::-webkit-scrollbar-track { background: transparent; }
+    .onboard-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    .onboard-header {
+      padding: 2rem 2rem 1.6rem;
+      background: linear-gradient(135deg, rgba(239,68,68,0.07), transparent);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      position: relative;
+    }
+    .onboard-header::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, var(--th-accent,#ef4444), var(--th-dim,#dc2626));
+    }
+    .onboard-avatar-wrap {
+      width: 64px; height: 64px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.55rem; font-weight: 800; color: #fff;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.5); margin-bottom: 1rem;
+    }
+    .onboard-welcome { font-size: 0.65rem; color: #475569; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700; }
+    .onboard-name { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.04em; color: #f1f5f9; line-height: 1; margin: 0.2rem 0 0.55rem; }
+    .onboard-tagline { font-size: 0.78rem; color: #475569; max-width: 280px; line-height: 1.5; }
+    .onboard-body { padding: 1.4rem 1.75rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .onboard-section { display: flex; flex-direction: column; gap: 0.9rem; }
+    .onboard-section-title {
+      font-size: 0.65rem; font-weight: 700; color: #334155;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      padding-bottom: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .onboard-field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .onboard-label { font-size: 0.82rem; font-weight: 500; color: #94a3b8; line-height: 1.4; }
+    .onboard-optional {
+      font-size: 0.6rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 4px; padding: 1px 5px; color: #334155; font-weight: 700; vertical-align: middle; margin-left: 4px;
+    }
+    .onboard-hint { font-size: 0.68rem; color: #334155; line-height: 1.4; }
+    .onboard-row { display: flex; align-items: center; gap: 0.55rem; }
+    .onboard-unit { font-size: 0.8rem; color: #475569; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+    .onboard-input {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 9px 13px; color: #f1f5f9; font-size: 0.88rem;
+      font-family: inherit; outline: none; transition: border-color 0.2s, background 0.2s;
+    }
+    .onboard-input:focus { border-color: rgba(239,68,68,0.5); background: rgba(255,255,255,0.08); box-shadow: 0 0 0 3px rgba(239,68,68,0.08); }
+    .onboard-input::placeholder { color: #334155; }
+    select.onboard-input { background: #0f172a; cursor: pointer; width: 100%; }
+    select.onboard-input option { background: #0f172a; color: #f1f5f9; }
+    .onboard-footer {
+      padding: 1.25rem 1.75rem 1.8rem;
+      display: flex; flex-direction: column; gap: 0.55rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .onboard-btn-primary {
+      width: 100%; padding: 0.72rem; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--th-accent,#ef4444), var(--th-dim,#dc2626));
+      color: #fff; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.01em; font-family: inherit;
+      box-shadow: 0 4px 18px rgba(239,68,68,0.28);
+    }
+    .onboard-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
+    .onboard-btn-skip {
+      width: 100%; padding: 0.5rem; border-radius: 10px; border: none;
+      background: transparent; color: #334155; font-size: 0.76rem;
+      cursor: pointer; transition: color 0.2s; font-family: inherit;
+    }
+    .onboard-btn-skip:hover { color: #64748b; }
+
+    /* ── Theme Picker Modal ─────────────────────────────────── */
+    .theme-overlay {
+      display: none; position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .theme-overlay.open { display: flex; animation: calFadeIn 0.18s ease; }
+    .theme-box {
+      background: linear-gradient(155deg, #131c2e 0%, #0a0f1e 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 22px; padding: 1.8rem 2rem;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.06);
+      position: relative; overflow: hidden;
+    }
+    .theme-box::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#8b5cf6,#ec4899);
+    }
+    .theme-title { font-size:1.1rem; font-weight:800; letter-spacing:-0.02em; color:#f1f5f9; margin-bottom:0.2rem; }
+    .theme-sub { font-size:0.72rem; color:#475569; margin-bottom:1.4rem; }
+    .theme-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.65rem; margin-bottom:1.3rem; }
+    .theme-swatch-wrap {
+      display:flex; flex-direction:column; align-items:center; gap:0.4rem;
+      cursor:pointer; padding:0.75rem 0.4rem 0.6rem; border-radius:14px;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);
+      transition:all 0.18s;
+    }
+    .theme-swatch-wrap:hover { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.14); transform:translateY(-1px); }
+    .theme-swatch-wrap.active { border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.07); }
+    .theme-swatch {
+      width:46px; height:46px; border-radius:50%;
+      position:relative; flex-shrink:0;
+      box-shadow:0 4px 16px rgba(0,0,0,0.4);
+      transition:transform 0.18s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .theme-swatch-wrap:hover .theme-swatch { transform:scale(1.07); }
+    .theme-swatch-wrap.active .theme-swatch { transform:scale(1.13); box-shadow:0 6px 22px rgba(0,0,0,0.5); }
+    .theme-check { font-size:1.15rem; opacity:0; transition:opacity 0.18s; line-height:1; }
+    .theme-swatch-wrap.active .theme-check { opacity:1; }
+    .theme-swatch-name { font-size:0.63rem; font-weight:600; color:#475569; transition:color 0.15s; }
+    .theme-swatch-wrap.active .theme-swatch-name { color:#cbd5e1; }
+    .theme-done-btn {
+      width:100%; padding:0.58rem; border-radius:10px;
+      background:rgba(255,255,255,0.07); color:#f1f5f9; font-size:0.82rem;
+      font-weight:600; cursor:pointer; transition:all 0.15s;
+      border:1px solid rgba(255,255,255,0.1);
+    }
+    .theme-done-btn:hover { background:rgba(255,255,255,0.13); border-color:rgba(255,255,255,0.2); }
   </style>
 </head>
 <body>
@@ -985,11 +1328,13 @@
     <div class="header-greeting">
       <div class="welcome-pill">
         <div class="welcome-pill-dot"></div>
-        <span id="welcomeGreeting"></span>
+        <span id="welcomeGreeting"></span>,
       </div>
       <div class="welcome-name" id="welcomeName">—</div>
-      <div class="welcome-date-line" id="welcomeDate"></div>
     </div>
+    <div class="welcome-date-line" id="welcomeDate"></div>
+  </div>
+  <div class="header-right">
     <div class="header-stats">
       <div class="hstat">
         <div class="hstat-label">Spent</div>
@@ -1004,14 +1349,15 @@
         <div class="hstat-val" id="hstatOt">—</div>
       </div>
     </div>
-  </div>
-  <div class="header-right">
+    <span id="headerShiftChip" class="header-chip" style="display:none;"></span>
+    <span id="headerSalChip"   class="header-chip" style="display:none;"></span>
     <div style="position:relative;">
       <span class="month-pill" id="headerMonth" onclick="toggleCalendarPopup()" style="cursor:pointer;" title="View calendar"></span>
       <div id="calendarPopup" class="cal-popup">
         <div id="calPopupInner"></div>
       </div>
     </div>
+    <button class="btn-hide-vals" id="dashHideBtn" onclick="toggleFinVisibility()" title="Hide / show amounts"><span id="dashHideIcon">👁</span></button>
     <button class="btn-history" onclick="openHistory()">📊 View History</button>
     <div style="position:relative;" id="profileBtnWrap">
       <div class="header-profile-btn" id="headerProfileBtn" onclick="toggleProfileDropdown()" title="Profile">?</div>
@@ -1024,18 +1370,30 @@
           </div>
         </div>
         <div class="prof-drop-body">
+          <div class="prof-drop-section">Account</div>
           <div class="prof-drop-item" onclick="switchProfile()">
-            <span class="prof-drop-icon">⇄</span> Switch Profile
+            <span class="prof-drop-icon">⇄</span>
+            <span>Switch Profile</span>
+          </div>
+
+          <div class="prof-drop-section" style="margin-top:0.45rem;">Preferences</div>
+          <div class="prof-drop-item" onclick="openThemeModal()">
+            <span class="prof-drop-icon">🎨</span>
+            <span>Appearance</span>
           </div>
           <div class="prof-drop-item" onclick="openManageProfiles()">
-            <span class="prof-drop-icon">⚙</span> Manage Profiles
+            <span class="prof-drop-icon">⚙</span>
+            <span>Manage Profiles</span>
           </div>
           <div class="prof-drop-item" onclick="openSyncModal()">
-            <span class="prof-drop-icon">☁</span> Cloud Sync
+            <span class="prof-drop-icon">☁</span>
+            <span>Cloud Sync</span>
           </div>
-          <hr class="prof-drop-sep">
+        </div>
+        <div class="prof-drop-footer">
           <div class="prof-drop-item danger" onclick="switchProfile()">
-            <span class="prof-drop-icon">→</span> Sign Out
+            <span class="prof-drop-icon">↪</span>
+            <span>Sign Out</span>
           </div>
         </div>
       </div>
@@ -1046,15 +1404,20 @@
 <!-- App Body -->
 <div class="app-body">
 
-  <!-- Mobile greeting (hidden on desktop via CSS) -->
+  <!-- Mobile greeting card (hidden on desktop via CSS) -->
   <div class="mobile-greeting" id="mobileGreeting">
-    <div class="mg-left">
+    <div class="mg-glow"></div>
+    <div class="mg-top-row">
       <div class="mg-greet" id="mgGreetText">Good morning,</div>
-      <div class="mg-name" id="mgName">—</div>
+      <div class="mg-date-chip" id="mgDateChip">—</div>
     </div>
-    <div class="mg-right">
-      <div class="mg-period-label">Current Period</div>
-      <div class="mg-period-val" id="mgPeriod">—</div>
+    <div class="mg-name" id="mgName">—</div>
+    <div class="mg-bottom-row">
+      <div>
+        <div class="mg-period-label">Current Period</div>
+        <div class="mg-period-val" id="mgPeriod">—</div>
+      </div>
+      <div class="mg-range" id="mgRange">—</div>
     </div>
   </div>
 
@@ -1176,7 +1539,7 @@
     <div class="modal-title">Set Monthly Salary</div>
     <div class="modal-sub" id="salaryModalSub"></div>
     <div class="salary-display" id="salaryDisplay">RM 0.00</div>
-    <input type="number" id="salaryInput" placeholder="Enter salary (e.g. 2530.62)" step="0.01" min="0"
+    <input type="number" id="salaryInput" inputmode="decimal" placeholder="Enter salary (e.g. 2530.62)" step="0.01" min="0"
       oninput="updateSalaryDisplay()" onkeydown="if(event.key==='Enter')saveSalary()" />
     <div class="salary-hint">Hourly rate will be auto-calculated from this</div>
     <button class="modal-btn primary" onclick="saveSalary()">Save Salary</button>
@@ -1194,20 +1557,20 @@
 
     <div class="field-label">Date (DD / MM / YYYY)</div>
     <div class="date-row">
-      <input type="number" id="expDay" placeholder="DD" min="1" max="31" style="width:60px;"
+      <input type="number" id="expDay" inputmode="numeric" placeholder="DD" min="1" max="31" style="width:60px;"
         oninput="autoAdvanceDate(this,'expMonth',2)" />
       <div class="date-sep">/</div>
-      <input type="number" id="expMonth" placeholder="MM" min="1" max="12" style="width:60px;"
+      <input type="number" id="expMonth" inputmode="numeric" placeholder="MM" min="1" max="12" style="width:60px;"
         oninput="autoAdvanceDate(this,'expYear',2)" />
       <div class="date-sep">/</div>
-      <input type="number" id="expYear" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
+      <input type="number" id="expYear" inputmode="numeric" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
     </div>
 
     <div class="field-label">Description</div>
     <input type="text" id="expDesc" placeholder="What did you spend on?" />
 
     <div class="field-label">Amount (RM)</div>
-    <input type="number" id="expAmt" placeholder="0.00" step="0.01" min="0" />
+    <input type="number" id="expAmt" inputmode="decimal" placeholder="0.00" step="0.01" min="0" />
 
     <div class="field-label">Category</div>
     <div class="cat-grid" id="catGrid"></div>
@@ -1237,13 +1600,13 @@
 
     <div class="field-label">Date (DD / MM / YYYY)</div>
     <div class="date-row">
-      <input type="number" id="otDay" placeholder="DD" min="1" max="31" style="width:60px;"
+      <input type="number" id="otDay" inputmode="numeric" placeholder="DD" min="1" max="31" style="width:60px;"
         oninput="autoAdvanceDate(this,'otMonth',2)" />
       <div class="date-sep">/</div>
-      <input type="number" id="otMonth" placeholder="MM" min="1" max="12" style="width:60px;"
+      <input type="number" id="otMonth" inputmode="numeric" placeholder="MM" min="1" max="12" style="width:60px;"
         oninput="autoAdvanceDate(this,'otYear',2)" />
       <div class="date-sep">/</div>
-      <input type="number" id="otYear" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
+      <input type="number" id="otYear" inputmode="numeric" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
     </div>
 
     <!-- Normal day: end time -->
@@ -1255,7 +1618,7 @@
     <!-- Rest / Holiday: total hours -->
     <div id="otHoursWrap" style="display:none;">
       <div class="field-label">Total Hours Worked</div>
-      <input type="number" id="otHours" placeholder="e.g. 8" min="0.5" max="24" step="0.5" oninput="updateOtPayPreview()" />
+      <input type="number" id="otHours" inputmode="decimal" placeholder="e.g. 8" min="0.5" max="24" step="0.5" oninput="updateOtPayPreview()" />
     </div>
 
     <div class="field-label">Description (optional)</div>
@@ -1293,18 +1656,18 @@
 
     <div id="scanResult" style="display:none;">
       <div class="field-label">Detected Amount (RM)</div>
-      <input type="number" id="scanAmt" step="0.01" min="0" />
+      <input type="number" id="scanAmt" inputmode="decimal" step="0.01" min="0" />
       <div class="field-label">Description</div>
       <input type="text" id="scanDesc" />
       <div class="field-label">Date (DD / MM / YYYY)</div>
       <div class="date-row">
-        <input type="number" id="scanDay" placeholder="DD" min="1" max="31" style="width:60px;"
+        <input type="number" id="scanDay" inputmode="numeric" placeholder="DD" min="1" max="31" style="width:60px;"
           oninput="autoAdvanceDate(this,'scanMonth',2)" />
         <div class="date-sep">/</div>
-        <input type="number" id="scanMonth" placeholder="MM" min="1" max="12" style="width:60px;"
+        <input type="number" id="scanMonth" inputmode="numeric" placeholder="MM" min="1" max="12" style="width:60px;"
           oninput="autoAdvanceDate(this,'scanYear',2)" />
         <div class="date-sep">/</div>
-        <input type="number" id="scanYear" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
+        <input type="number" id="scanYear" inputmode="numeric" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
       </div>
       <div class="field-label">Category</div>
       <div class="cat-grid" id="scanCatGrid"></div>
@@ -1316,7 +1679,7 @@
 
 <!-- Expanded Calendar Modal -->
 <div class="cal-modal-overlay" id="calExpandModal" onclick="if(event.target===this)closeExpandedCal()">
-  <div class="cal-modal-box" style="min-width:380px;max-width:460px;width:100%;">
+  <div class="cal-modal-box" style="min-width:340px;max-width:760px;width:100%;">
     <div class="cal-modal-header">
       <button class="cal-nav-btn" onclick="shiftCalMonth(-1)">&#8249;</button>
       <div class="cal-modal-title" id="calExpandTitle"></div>
@@ -1324,13 +1687,68 @@
       <button class="cal-modal-close" onclick="closeExpandedCal()" style="margin-left:0.5rem;">✕</button>
     </div>
     <div class="cal-big-grid" id="calExpandGrid"></div>
-    <div id="calExpandNote" class="cal-salary-note" style="margin-top:0.75rem;"></div>
-    <div id="calExpandLegend" class="cal-legend" style="margin-top:0.75rem;padding-top:0.65rem;border-top:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;gap:0.5rem 1rem;"></div>
-    <div style="margin-top:0.9rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.07);">
-      <div style="font-size:0.7rem;color:#64748b;margin-bottom:0.4rem;">Roster cycle — set the start date of a work day 1:</div>
-      <div style="display:flex;gap:0.5rem;align-items:center;">
-        <input type="date" id="rosterStartInput" style="flex:1;padding:0.35rem 0.6rem;border-radius:7px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:0.82rem;" />
-        <button onclick="saveRosterStart()" style="padding:0.35rem 0.9rem;border-radius:7px;border:none;background:#3b82f6;color:#fff;font-size:0.82rem;cursor:pointer;font-weight:600;">Set</button>
+    <div id="calExpandNote" class="cal-salary-note"></div>
+    <div id="calExpandLegend" class="cal-legend"></div>
+
+    <!-- Config cards — 2-column grid -->
+    <div class="cal-cfg-grid">
+      <!-- LEFT: Shift Pattern -->
+      <div class="cal-cfg-card">
+        <div class="roster-section-label">🗓 Shift Pattern</div>
+        <div style="display:flex;gap:0.4rem;margin-bottom:0.65rem;flex-wrap:wrap;">
+          <button class="rp-preset-btn" id="rp411" onclick="applyRosterPreset(4,1,1)">4W+1O+1R</button>
+          <button class="rp-preset-btn" id="rp511" onclick="applyRosterPreset(5,1,1)">5W+1O+1R</button>
+          <button class="rp-preset-btn" id="rp520" onclick="applyRosterPreset(5,2,0)">5W+2O</button>
+          <button class="rp-preset-btn" id="rp712" onclick="applyRosterPreset(7,1,2)">7W+1O+2R</button>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.65rem;">
+          <div class="rp-input-group">
+            <label class="rp-input-label">Work Days</label>
+            <input type="number" id="rosterWork" min="1" max="14" value="4" class="rp-input" oninput="renderRosterPreview()" />
+          </div>
+          <div class="rp-input-group">
+            <label class="rp-input-label">Off Day(s)</label>
+            <input type="number" id="rosterOff" min="0" max="7" value="1" class="rp-input" oninput="renderRosterPreview()" />
+          </div>
+          <div class="rp-input-group">
+            <label class="rp-input-label">Rest Day(s)</label>
+            <input type="number" id="rosterRest" min="0" max="7" value="1" class="rp-input" oninput="renderRosterPreview()" />
+          </div>
+        </div>
+        <div id="rosterPreview" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:0.65rem;min-height:32px;"></div>
+        <button onclick="saveRosterPattern()" class="cal-cfg-save" style="background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 2px 10px rgba(59,130,246,0.3);">Save Shift Pattern</button>
+      </div>
+
+      <!-- RIGHT column: Salary Cycle + Cycle Start Date -->
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <!-- Salary Cycle -->
+        <div class="cal-cfg-card">
+          <div class="roster-section-label">💰 Salary Cycle</div>
+          <div style="display:flex;gap:0.5rem;align-items:flex-end;margin-bottom:0.55rem;">
+            <div class="rp-input-group" style="flex:0 0 80px;">
+              <label class="rp-input-label">Salary Day</label>
+              <input type="number" id="salDayInput" min="1" max="31" value="25" class="rp-input" oninput="renderSalaryPreview()" />
+            </div>
+            <div class="rp-input-group" style="flex:1;">
+              <label class="rp-input-label">If Weekend</label>
+              <select id="salWeekendRule" class="rp-input" onchange="renderSalaryPreview()">
+                <option value="friday">Pay Friday before</option>
+                <option value="monday">Pay Monday after</option>
+                <option value="exact">Exact day</option>
+              </select>
+            </div>
+          </div>
+          <div id="salaryPreview" style="font-size:0.72rem;color:#94a3b8;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:0.45rem 0.65rem;margin-bottom:0.55rem;min-height:1.8rem;"></div>
+          <button onclick="saveSalaryCfg()" class="cal-cfg-save" style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 2px 10px rgba(34,197,94,0.3);">Save Salary Cycle</button>
+        </div>
+        <!-- Cycle Start Date -->
+        <div class="cal-cfg-card">
+          <div class="roster-section-label">📅 Cycle Start — First Work Day</div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <input type="date" id="rosterStartInput" style="flex:1;padding:0.4rem 0.7rem;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#f1f5f9;font-size:0.82rem;" />
+            <button onclick="saveRosterStart()" style="padding:0.4rem 1rem;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-size:0.82rem;cursor:pointer;font-weight:600;white-space:nowrap;box-shadow:0 2px 10px rgba(59,130,246,0.3);">Set</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1338,7 +1756,7 @@
 
 <!-- Budget Settings Modal -->
 <div class="modal-overlay" id="budgetSettingsModal" onclick="if(event.target===this)closeBudgetSettings()">
-  <div class="modal" style="width:420px;">
+  <div class="modal" style="max-width:420px;">
     <button class="modal-close" onclick="closeBudgetSettings()">✕</button>
     <div class="modal-icon">🎯</div>
     <div class="modal-title">Budget Planner</div>
@@ -1371,7 +1789,7 @@
     <div class="modal-icon">✏️</div>
     <div class="modal-title">Edit Salary</div>
     <div class="modal-sub" id="editSalaryLabel"></div>
-    <input type="number" id="editSalaryInput" placeholder="Enter amount" step="0.01" min="0"
+    <input type="number" id="editSalaryInput" inputmode="decimal" placeholder="Enter amount" step="0.01" min="0"
       onkeydown="if(event.key==='Enter')saveEditSalary()" />
     <button class="modal-btn primary" onclick="saveEditSalary()">Save</button>
     <button class="modal-btn secondary" onclick="closeEditSalary()">Cancel</button>
@@ -1401,18 +1819,18 @@
 
     <div class="field-label">Date (DD / MM / YYYY)</div>
     <div class="date-row">
-      <input type="number" id="recDay" placeholder="DD" min="1" max="31" style="width:60px;" oninput="autoAdvanceDate(this,'recMonth',2)" />
+      <input type="number" id="recDay" inputmode="numeric" placeholder="DD" min="1" max="31" style="width:60px;" oninput="autoAdvanceDate(this,'recMonth',2)" />
       <div class="date-sep">/</div>
-      <input type="number" id="recMonth" placeholder="MM" min="1" max="12" style="width:60px;" oninput="autoAdvanceDate(this,'recYear',2)" />
+      <input type="number" id="recMonth" inputmode="numeric" placeholder="MM" min="1" max="12" style="width:60px;" oninput="autoAdvanceDate(this,'recYear',2)" />
       <div class="date-sep">/</div>
-      <input type="number" id="recYear" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
+      <input type="number" id="recYear" inputmode="numeric" placeholder="YYYY" min="2020" max="2099" style="width:80px;" />
     </div>
 
     <div class="field-label">From / Description</div>
     <input type="text" id="recDesc" placeholder="e.g. Bank transfer from sayang" />
 
     <div class="field-label">Amount (RM)</div>
-    <input type="number" id="recAmt" placeholder="0.00" step="0.01" min="0" />
+    <input type="number" id="recAmt" inputmode="decimal" placeholder="0.00" step="0.01" min="0" />
 
     <button class="modal-btn" id="recSaveBtn" onclick="saveReceived()"
       style="background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;width:100%;padding:12px;border:none;border-radius:12px;font-size:0.9rem;font-weight:600;cursor:pointer;">
@@ -1430,6 +1848,30 @@
 <script>
 // ── Profile session ──────────────────────────────────────
 // sessionStorage clears on browser close, giving us "until browser closes" sessions.
+// ── Domain Lock ───────────────────────────────────────────
+// List every hostname allowed to run this app.
+// For clients: change to their GitHub Pages domain before handing over.
+var _ALLOWED_DOMAINS = [
+  'haziqirfan883.github.io',   // your GitHub Pages — update with your real username
+  'localhost',
+  '127.0.0.1',
+  ''                            // allows opening as local file (file://)
+];
+(function() {
+  var host = window.location.hostname;
+  var ok = _ALLOWED_DOMAINS.some(function(d) { return host === d; });
+  if (!ok) {
+    document.body.style.cssText = 'margin:0;background:#080808;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Inter,system-ui,sans-serif;';
+    document.body.innerHTML =
+      '<div style="text-align:center;padding:2rem;">'
+    + '<div style="font-size:3rem;margin-bottom:1rem;">🔒</div>'
+    + '<div style="font-size:1.3rem;font-weight:700;color:#f1f5f9;margin-bottom:0.5rem;">Access Restricted</div>'
+    + '<div style="font-size:0.85rem;color:#64748b;max-width:300px;line-height:1.6;">This app is not licensed to run on <strong style="color:#f87171;">' + host + '</strong>.<br>Please contact the developer to get a valid copy.</div>'
+    + '</div>';
+    throw new Error('Domain not authorised: ' + host);
+  }
+})();
+
 var activeProfileId = sessionStorage.getItem('mft_active_profile') || null;
 var profilePrefix   = activeProfileId ? activeProfileId + '__' : '';
 
@@ -1449,7 +1891,7 @@ var FIREBASE_CONFIG = {
 
 const SYNC_KEY_STORAGE = 'mft_sys_sync_key';
 // Keys that must NOT sync: security-sensitive or device-specific
-var _NOSYNC = ['mft_sys_admin_hash', 'mft_sys_migrated', SYNC_KEY_STORAGE];
+var _NOSYNC = ['mft_sys_admin_hash', 'mft_sys_migrated', SYNC_KEY_STORAGE, 'mft_fin_hidden'];
 function _syncable(k) {
   if (!k) return false;
   if (_NOSYNC.indexOf(k) !== -1) return false;
@@ -1620,18 +2062,26 @@ const currentMonthIdx  = now.getMonth();
 const currentMonthName = ALL_MONTHS[currentMonthIdx];
 const currentMonthLower = currentMonthName.toLowerCase();
 
-// ── Salary period (25th → 24th cycle) ──────────────────
-// If today is before the salary date, we're still in the previous period.
-var _sd = (function(){ var d=new Date(currentYear,currentMonthIdx,25).getDay(); return d===6?24:d===0?23:25; })();
+// ── Salary period (configured day cycle) ──────────────────
+// Read salary config early — SALARY_CFG_KEY const isn't declared yet so we inline the key.
+var _salCfgEarly  = (function(){ try { return JSON.parse(localStorage.getItem(profilePrefix + 'mft_salary_cfg')); } catch(e) { return null; } })();
+var _cfgDay       = (_salCfgEarly && _salCfgEarly.day >= 1 && _salCfgEarly.day <= 31) ? _salCfgEarly.day : 25;
+var _cfgWeekend   = (_salCfgEarly && _salCfgEarly.weekend) ? _salCfgEarly.weekend : 'friday';
+// Adjust for weekends using the configured rule
+var _sdDow = new Date(currentYear, currentMonthIdx, _cfgDay).getDay();
+var _sd = _cfgDay;
+if (_sdDow === 6)      { _sd = _cfgWeekend === 'monday' ? _cfgDay + 2 : _cfgDay - 1; } // Sat → Mon+2 or Fri-1
+else if (_sdDow === 0) { _sd = _cfgWeekend === 'monday' ? _cfgDay + 1 : _cfgDay - 2; } // Sun → Mon+1 or Fri-2
 var periodMonthIdx  = now.getDate() >= _sd ? currentMonthIdx : (currentMonthIdx === 0 ? 11 : currentMonthIdx - 1);
 var periodYear      = now.getDate() >= _sd ? currentYear     : (currentMonthIdx === 0 ? currentYear - 1 : currentYear);
 var periodMonthName  = ALL_MONTHS[periodMonthIdx];
 var periodMonthLower = periodMonthName.toLowerCase();
-// Period end date display: 24th of the month after period start
+// Period end date display: (cfgDay-1) of the month after period start
 var _pEndMonthIdx = (periodMonthIdx + 1) % 12;
 var _pEndYear     = _pEndMonthIdx === 0 ? periodYear + 1 : periodYear;
-var periodLabel   = periodMonthName + ' ' + periodYear; // e.g. "May 2026"
-var periodRange   = '25 ' + periodMonthName + ' – 24 ' + ALL_MONTHS[_pEndMonthIdx]; // e.g. "25 May – 24 Jun"
+var _pEndDay      = _cfgDay - 1; // e.g. day=25 → end=24
+var periodLabel   = periodMonthName + ' ' + periodYear;
+var periodRange   = _cfgDay + ' ' + periodMonthName + ' – ' + _pEndDay + ' ' + ALL_MONTHS[_pEndMonthIdx];
 
 const salaryKey   = profilePrefix + 'mft_salary_'   + periodMonthLower + '_' + periodYear;
 const expensesKey = profilePrefix + 'mft_expenses_' + periodMonthLower + '_' + periodYear;
@@ -1641,7 +2091,11 @@ const OT_RATE_OVERRIDE_KEY = profilePrefix + 'mft_ot_rate_override';
 const OT_CONFIG_KEY        = profilePrefix + 'mft_ot_config';
 const BUDGET_KEY           = profilePrefix + 'mft_budget';
 const ROSTER_START_KEY     = profilePrefix + 'mft_roster_start';
+const ROSTER_PATTERN_KEY   = profilePrefix + 'mft_roster_pattern';
+const SALARY_CFG_KEY       = profilePrefix + 'mft_salary_cfg';
 const LEAVE_KEY            = profilePrefix + 'mft_leave';
+const THEME_KEY            = profilePrefix + 'mft_theme';
+const ONBOARDED_KEY        = profilePrefix + 'mft_onboarded';
 
 // Malaysian Public Holidays — source: publicholidays.com.my
 const MY_PH = {
@@ -1909,8 +2363,61 @@ function saveOT(arr) {
 // ═══════════════════════════════════════════════════
 // RENDER DASHBOARD
 // ═══════════════════════════════════════════════════
+function renderHeaderChips() {
+  var now = new Date();
+  var yr = now.getFullYear(), mo = now.getMonth(), d = now.getDate();
+
+  // — Shift status chip —
+  var shiftEl = document.getElementById('headerShiftChip');
+  if (shiftEl) {
+    var rt = getRosterType(yr, mo, d);
+    if (rt === 'offday') {
+      shiftEl.innerHTML = '☀️ Off Day';
+      shiftEl.className = 'header-chip header-chip-off';
+      shiftEl.style.display = '';
+    } else if (rt === 'restday') {
+      shiftEl.innerHTML = '😴 Rest Day';
+      shiftEl.className = 'header-chip header-chip-rest';
+      shiftEl.style.display = '';
+    } else if (rt === 'work') {
+      shiftEl.innerHTML = '💼 Work Day';
+      shiftEl.className = 'header-chip header-chip-work';
+      shiftEl.style.display = '';
+    } else {
+      shiftEl.style.display = 'none';
+    }
+  }
+
+  // — Salary countdown chip —
+  var salEl = document.getElementById('headerSalChip');
+  if (salEl) {
+    var salDay = getSalaryDate(yr, mo);
+    var daysLeft;
+    if (d <= salDay) {
+      daysLeft = salDay - d;
+    } else {
+      var nMo = mo + 1, nYr = yr;
+      if (nMo > 11) { nMo = 0; nYr++; }
+      var nextSal = new Date(nYr, nMo, getSalaryDate(nYr, nMo));
+      daysLeft = Math.round((nextSal - new Date(yr, mo, d)) / 86400000);
+    }
+    if (daysLeft === 0) {
+      salEl.innerHTML = '💰 Salary Day!';
+      salEl.className = 'header-chip header-chip-sal-today';
+    } else if (daysLeft <= 3) {
+      salEl.innerHTML = '💰 ' + daysLeft + 'd to salary';
+      salEl.className = 'header-chip header-chip-sal-today';
+    } else {
+      salEl.innerHTML = '💰 ' + daysLeft + 'd to salary';
+      salEl.className = 'header-chip header-chip-sal';
+    }
+    salEl.style.display = '';
+  }
+}
+
 function renderDashboard() {
   updateHeaderStats();
+  renderHeaderChips();
   const salary = parseFloat(localStorage.getItem(salaryKey)) || 0;
   const expenses = loadExpenses();
   const otList = loadOT();
@@ -1919,9 +2426,10 @@ function renderDashboard() {
   const totalOT       = otList.reduce(function(s, e) { return s + (parseFloat(e.pay) || 0); }, 0);
   const totalReceived = loadReceived().reduce(function(s, e) { return s + (parseFloat(e.amount) || 0); }, 0);
 
-  document.getElementById('headerMonth').textContent    = periodLabel;
+  document.getElementById('headerMonth').innerHTML = '<span class="month-pill-icon">🗓</span><span class="month-pill-text"><span class="month-pill-label">' + periodLabel + '</span><span class="month-pill-hint">View Calendar</span></span><span class="month-pill-caret">▾</span>';
   document.getElementById('expModalMonth').textContent  = periodLabel + '  ·  ' + periodRange;
-  document.getElementById('otModalMonth').textContent   = periodLabel + '  ·  ' + periodRange;
+  var _otLastDay = new Date(periodYear, periodMonthIdx + 1, 0).getDate();
+  document.getElementById('otModalMonth').textContent   = periodLabel + '  ·  1st ' + periodMonthName + ' – ' + _otLastDay + ordSuffix(_otLastDay) + ' ' + periodMonthName;
 
   if (salary > 0) {
     document.getElementById('dashIncome').textContent = fmt(salary);
@@ -2207,50 +2715,7 @@ function renderPanelB() {
   });
   const totalPay = otList.reduce(function(s, e) { return s + (parseFloat(e.pay) || 0); }, 0);
 
-  const storedRate = parseFloat(localStorage.getItem(OT_RATE_OVERRIDE_KEY)) || 0;
-
   let html = '';
-
-  // Base rate card + edit
-  if (rate > 0) {
-    html += '<div class="ot-rate-bar" style="flex-direction:column;align-items:stretch;gap:0.5rem;">';
-    html += '<div style="display:flex;align-items:center;justify-content:space-between;">';
-    html += '<span class="ot-rate-label">Base Hourly Rate (from payslip)</span>';
-    html += '<button class="ot-rate-edit-btn" onclick="toggleOtRateEdit()">Edit</button>';
-    html += '</div>';
-    // Effective OT rates per type — 2×2 grid (5 items: last spans full)
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">';
-    var typeKeys = Object.keys(OT_TYPES);
-    typeKeys.forEach(function(k, ki) {
-      const t = OT_TYPES[k];
-      const mult = getOtMult(k);
-      const effectiveRate = rate * mult;
-      const incAmt = getOtIncentiveAmt(k);
-      const incMin = getOtIncentiveMinHrs(k);
-      const isLast = ki === typeKeys.length - 1 && typeKeys.length % 2 !== 0;
-      html += '<div style="background:' + t.color + '15;border:1px solid ' + t.color + '33;border-radius:8px;padding:6px 8px;' + (isLast ? 'grid-column:1/-1;' : '') + '">';
-      html += '<div style="font-size:0.62rem;color:#64748b;">' + t.label + ' <span style="color:' + t.color + '">(' + mult + '×)</span></div>';
-      html += '<div style="font-size:0.88rem;font-weight:700;color:' + t.color + '">RM ' + effectiveRate.toFixed(2) + '<span style="font-size:0.6rem;font-weight:400;color:#475569;">/hr</span>';
-      if (incAmt > 0) html += ' <span style="font-size:0.62rem;color:#a855f7;">+RM' + incAmt + ' if >' + incMin + 'h</span>';
-      html += '</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-    html += '</div>';
-  } else {
-    // Prompt to set rate
-    html += '<div class="ot-rate-bar" style="flex-direction:column;align-items:stretch;gap:0.4rem;">';
-    html += '<div style="font-size:0.75rem;color:#ef4444;font-weight:600;">⚠ Set your base hourly rate</div>';
-    html += '<div style="font-size:0.7rem;color:#64748b;">Check your payslip for #/001-Hourly Rate</div>';
-    html += '</div>';
-  }
-
-  // Rate edit row (hidden by default)
-  html += '<div id="otRateEditRow" style="display:none;padding:0.5rem 1rem;gap:0.5rem;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06);">';
-  html += '<span style="font-size:0.72rem;color:#64748b;flex-shrink:0;">Base rate:</span>';
-  html += '<input class="ot-rate-input" type="number" id="otRateInput" placeholder="e.g. 13.38" step="0.01" min="0" value="' + (storedRate || '') + '" />';
-  html += '<button class="ot-rate-edit-btn" onclick="saveOtRateOverride()" style="color:#22c55e;">Save</button>';
-  html += '</div>';
 
   // Monthly OT totals by type
   html += '<div class="ot-summary-row">';
@@ -2295,7 +2760,7 @@ function renderPanelB() {
 
   // Total bar
   html += '<div class="ot-total-bar">';
-  html += '<span class="ot-total-label">Total OT Pay</span>';
+  html += '<span class="ot-total-label">Total OT Pay – ' + ALL_MONTHS[_pEndMonthIdx] + '</span>';
   html += '<span class="ot-total-val">' + fmt(totalPay) + '</span>';
   html += '</div>';
 
@@ -3065,6 +3530,10 @@ if ('serviceWorker' in navigator) {
   if (greetEl) greetEl.textContent = greet;
   var mgGreetEl = document.getElementById('mgGreetText');
   if (mgGreetEl) mgGreetEl.textContent = greet + ',';
+  var mgChip = document.getElementById('mgDateChip');
+  if (mgChip) mgChip.textContent = day + ', ' + date + ' ' + mon;
+  var mgRangeEl = document.getElementById('mgRange');
+  if (mgRangeEl) mgRangeEl.textContent = periodRange;
   const el = document.getElementById('welcomeDate');
   if (el) el.textContent = day + ', ' + date + ' ' + mon + ' ' + yr;
 })();
@@ -3084,31 +3553,75 @@ function toggleLeave(dateStr) {
 }
 
 // ── Calendar helpers ──────────────────────────────
+function getSalaryCfg() {
+  try {
+    var c = JSON.parse(localStorage.getItem(SALARY_CFG_KEY));
+    if (c && c.day >= 1 && c.day <= 31) return c;
+  } catch(e) {}
+  return {day: 25, weekend: 'friday'};
+}
 function getSalaryDate(year, month) {
-  const dow = new Date(year, month, 25).getDay();
-  if (dow === 6) return 24;
-  if (dow === 0) return 23;
-  return 25;
+  var cfg = getSalaryCfg();
+  var d = cfg.day;
+  var maxDay = new Date(year, month + 1, 0).getDate();
+  if (d > maxDay) d = maxDay;
+  var dow = new Date(year, month, d).getDay();
+  if (cfg.weekend === 'exact') return d;
+  if (cfg.weekend === 'friday') {
+    if (dow === 6) return d - 1;
+    if (dow === 0) return d - 2;
+    return d;
+  }
+  if (cfg.weekend === 'monday') {
+    if (dow === 6) return d + 2;
+    if (dow === 0) return d + 1;
+    return d;
+  }
+  return d;
 }
 function getSalaryNote(year, month) {
-  const sal = getSalaryDate(year, month);
-  const dow = new Date(year, month, 25).getDay();
-  const DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  return sal !== 25
-    ? '💰 Salary: ' + sal + ' ' + ALL_MONTHS[month] + ' (25th is ' + DN[dow] + ' — paid Friday)'
-    : '💰 Salary: 25 ' + ALL_MONTHS[month] + ' (' + DN[dow] + ')';
+  var cfg = getSalaryCfg();
+  var d = cfg.day;
+  var maxDay = new Date(year, month + 1, 0).getDate();
+  if (d > maxDay) d = maxDay;
+  var sal = getSalaryDate(year, month);
+  var dow = new Date(year, month, d).getDay();
+  var DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var suffix = '';
+  if (sal !== d) {
+    suffix = cfg.weekend === 'friday'
+      ? ' (' + d + ordSuffix(d) + ' is ' + DN[dow] + ' — paid ' + sal + ordSuffix(sal) + ' Friday)'
+      : ' (' + d + ordSuffix(d) + ' is ' + DN[dow] + ' — paid ' + sal + ordSuffix(sal) + ' Monday)';
+  } else {
+    suffix = ' (' + DN[dow] + ')';
+  }
+  return '💰 Salary: ' + sal + ' ' + ALL_MONTHS[month] + suffix;
+}
+function ordSuffix(n) {
+  var s = ['th','st','nd','rd'], v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
+}
+function getRosterPattern() {
+  try {
+    var p = JSON.parse(localStorage.getItem(ROSTER_PATTERN_KEY));
+    if (p && p.work > 0) return p;
+  } catch(e) {}
+  return {work: 4, off: 1, rest: 1};
 }
 function getRosterType(year, month, day) {
   const rs = localStorage.getItem(ROSTER_START_KEY);
   if (!rs) return null;
+  const p = getRosterPattern();
+  const cycleLen = p.work + p.off + p.rest;
+  if (cycleLen < 1) return 'work';
   const start = new Date(rs);
   start.setHours(0,0,0,0);
   const target = new Date(year, month, day);
   target.setHours(0,0,0,0);
   const diff = Math.round((target - start) / 86400000);
-  const mod  = ((diff % 6) + 6) % 6;
-  if (mod === 4) return 'offday';
-  if (mod === 5) return 'restday';
+  const mod  = ((diff % cycleLen) + cycleLen) % cycleLen;
+  if (mod >= p.work && mod < p.work + p.off) return 'offday';
+  if (mod >= p.work + p.off) return 'restday';
   return 'work';
 }
 function getPHKey(year, month, day) {
@@ -3239,6 +3752,8 @@ function renderExpandedCal() {
     if (phName) inner = n + '<span class="cal-ph-tip">' + phName.split(' ').slice(0,2).join(' ') + '</span>';
     grid += '<div class="' + cls + '" title="' + (phName || '') + '">' + inner + '</div>';
   }
+  var trailingCells = 42 - firstDay - daysInMonth;
+  for (var t = 0; t < trailingCells; t++) grid += '<div class="cal-big-cell"></div>';
   document.getElementById('calExpandGrid').innerHTML = grid;
   document.getElementById('calExpandNote').textContent = getSalaryNote(year, month);
 
@@ -3255,6 +3770,24 @@ function renderExpandedCal() {
 
   const rsi = document.getElementById('rosterStartInput');
   if (rsi && rs) rsi.value = rs;
+
+  // Populate salary cycle inputs
+  var sc = getSalaryCfg();
+  var sdi = document.getElementById('salDayInput');
+  var swr = document.getElementById('salWeekendRule');
+  if (sdi) sdi.value = sc.day;
+  if (swr) swr.value = sc.weekend;
+  renderSalaryPreview();
+
+  // Populate shift pattern inputs
+  const p = getRosterPattern();
+  var wi = document.getElementById('rosterWork');
+  var oi = document.getElementById('rosterOff');
+  var ri = document.getElementById('rosterRest');
+  if (wi) wi.value = p.work;
+  if (oi) oi.value = p.off;
+  if (ri) ri.value = p.rest;
+  renderRosterPreview();
 }
 function openExpandedCal() {
   document.getElementById('calendarPopup').classList.remove('open');
@@ -3279,6 +3812,77 @@ function saveRosterStart() {
   renderExpandedCal();
   showToast('Roster start set — cycle begins on ' + val);
 }
+function applyRosterPreset(w, o, r) {
+  var wi = document.getElementById('rosterWork');
+  var oi = document.getElementById('rosterOff');
+  var ri = document.getElementById('rosterRest');
+  if (wi) wi.value = w;
+  if (oi) oi.value = o;
+  if (ri) ri.value = r;
+  renderRosterPreview();
+}
+function renderRosterPreview() {
+  var el = document.getElementById('rosterPreview');
+  if (!el) return;
+  var w = parseInt(document.getElementById('rosterWork').value) || 0;
+  var o = parseInt(document.getElementById('rosterOff').value)  || 0;
+  var r = parseInt(document.getElementById('rosterRest').value) || 0;
+  var html = '';
+  for (var i = 0; i < w; i++) html += '<div class="rp-block rp-work" title="Work day">W</div>';
+  for (var i = 0; i < o; i++) html += '<div class="rp-block rp-off"  title="Off day">O</div>';
+  for (var i = 0; i < r; i++) html += '<div class="rp-block rp-rest" title="Rest day">R</div>';
+  if (w + o + r > 0) html += '<div style="align-self:center;font-size:0.65rem;color:#334155;margin-left:4px;">× repeating</div>';
+  el.innerHTML = html;
+  // Highlight matching preset
+  var presets = [{id:'rp411',w:4,o:1,r:1},{id:'rp511',w:5,o:1,r:1},{id:'rp520',w:5,o:2,r:0},{id:'rp712',w:7,o:1,r:2}];
+  presets.forEach(function(p) {
+    var btn = document.getElementById(p.id);
+    if (btn) btn.classList.toggle('active', p.w===w && p.o===o && p.r===r);
+  });
+}
+function renderSalaryPreview() {
+  var el = document.getElementById('salaryPreview');
+  if (!el) return;
+  var dayVal = parseInt(document.getElementById('salDayInput').value) || 25;
+  var rule   = document.getElementById('salWeekendRule').value;
+  if (dayVal < 1 || dayVal > 31) { el.textContent = 'Enter a day between 1 and 31'; return; }
+  var now = new Date();
+  var lines = [];
+  for (var mi = 0; mi < 3; mi++) {
+    var yr = now.getFullYear(), mo = now.getMonth() + mi;
+    if (mo > 11) { mo -= 12; yr++; }
+    var maxDay = new Date(yr, mo + 1, 0).getDate();
+    var d = Math.min(dayVal, maxDay);
+    var dow = new Date(yr, mo, d).getDay();
+    var paid = d;
+    var note = '';
+    var DN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    if (rule === 'friday' && dow === 6) { paid = d - 1; note = ' (Sat→Fri)'; }
+    else if (rule === 'friday' && dow === 0) { paid = d - 2; note = ' (Sun→Fri)'; }
+    else if (rule === 'monday' && dow === 6) { paid = d + 2; note = ' (Sat→Mon)'; }
+    else if (rule === 'monday' && dow === 0) { paid = d + 1; note = ' (Sun→Mon)'; }
+    lines.push(ALL_MONTHS[mo] + ' ' + yr + ': <strong style="color:#22c55e;">' + paid + ordSuffix(paid) + '</strong>' + note + ' (' + DN[dow] + ')');
+  }
+  el.innerHTML = lines.join(' &nbsp;·&nbsp; ');
+}
+function saveSalaryCfg() {
+  var d = parseInt(document.getElementById('salDayInput').value) || 25;
+  var w = document.getElementById('salWeekendRule').value;
+  if (d < 1 || d > 31) { showToast('Enter a valid day (1–31)'); return; }
+  localStorage.setItem(SALARY_CFG_KEY, JSON.stringify({day: d, weekend: w}));
+  renderExpandedCal();
+  renderDashboard();
+  showToast('Salary cycle saved — paid on the ' + d + ordSuffix(d) + ' each month');
+}
+function saveRosterPattern() {
+  var w = parseInt(document.getElementById('rosterWork').value) || 0;
+  var o = parseInt(document.getElementById('rosterOff').value)  || 0;
+  var r = parseInt(document.getElementById('rosterRest').value) || 0;
+  if (w < 1) { showToast('Work days must be at least 1'); return; }
+  localStorage.setItem(ROSTER_PATTERN_KEY, JSON.stringify({work:w, off:o, rest:r}));
+  renderExpandedCal();
+  showToast('Shift pattern saved: ' + w + 'W + ' + o + 'O + ' + r + 'R = ' + (w+o+r) + '-day cycle');
+}
 
 // ── Popup toggle & outside-click close ───────────
 function toggleCalendarPopup() {
@@ -3290,7 +3894,7 @@ function toggleCalendarPopup() {
 document.addEventListener('click', function(e) {
   const popup = document.getElementById('calendarPopup');
   const pill  = document.getElementById('headerMonth');
-  if (popup && popup.classList.contains('open') && !popup.contains(e.target) && e.target !== pill) {
+  if (popup && popup.classList.contains('open') && !popup.contains(e.target) && !pill.contains(e.target)) {
     popup.classList.remove('open');
   }
 });
@@ -3398,6 +4002,23 @@ function saveBudgetSettings() {
 }
 
 // ═══════════════════════════════════════════════════
+// PRIVACY HIDE TOGGLE
+// ═══════════════════════════════════════════════════
+function toggleFinVisibility() {
+  var hidden = document.body.classList.toggle('fin-hidden');
+  _lsSet('mft_fin_hidden', hidden ? '1' : '0');
+  var icon = document.getElementById('dashHideIcon');
+  if (icon) icon.textContent = hidden ? '🙈' : '👁';
+}
+function applyFinVisibility() {
+  var stored = localStorage.getItem('mft_fin_hidden');
+  if (stored === '1') {
+    document.body.classList.add('fin-hidden');
+    var icon = document.getElementById('dashHideIcon');
+    if (icon) icon.textContent = '🙈';
+  }
+}
+
 // MOBILE PANEL SWITCHING
 // ═══════════════════════════════════════════════════
 function mobileFabClick() {
@@ -3496,6 +4117,102 @@ function applyProfileToUI(profile) {
   if (nameEl) nameEl.textContent = profile.name;
   var mgNameEl = document.getElementById('mgName');
   if (mgNameEl) mgNameEl.textContent = profile.name;
+  // Apply this profile's saved theme
+  loadTheme();
+}
+
+// ── Theme System ──────────────────────────────────────────
+var THEMES = {
+  crimson: { name:'Crimson', accent:'#ef4444', dim:'#dc2626', dark:'#7f1d1d', light:'#fca5a5', r:239, g:68,  b:68  },
+  ocean:   { name:'Ocean',   accent:'#3b82f6', dim:'#2563eb', dark:'#1e3a8a', light:'#93c5fd', r:59,  g:130, b:246 },
+  emerald: { name:'Emerald', accent:'#10b981', dim:'#059669', dark:'#064e3b', light:'#6ee7b7', r:16,  g:185, b:129 },
+  violet:  { name:'Violet',  accent:'#8b5cf6', dim:'#7c3aed', dark:'#4c1d95', light:'#c4b5fd', r:139, g:92,  b:246 },
+  amber:   { name:'Amber',   accent:'#f59e0b', dim:'#d97706', dark:'#78350f', light:'#fcd34d', r:245, g:158, b:11  },
+  rose:    { name:'Rose',    accent:'#ec4899', dim:'#db2777', dark:'#831843', light:'#f9a8d4', r:236, g:72,  b:153 },
+};
+
+function _buildThemeCSS(t) {
+  var rgb = t.r+','+t.g+','+t.b;
+  return [
+    '.bg-blob-1{background:'+t.dim+';}',
+    '.bg-blob-2{background:'+t.dark+';}',
+    '.logo-monogram{border-color:rgba('+rgb+',0.35);color:'+t.accent+';box-shadow:0 0 14px rgba('+rgb+',0.12),inset 0 1px 0 rgba(255,255,255,0.04);}',
+    '.month-pill{background:rgba('+rgb+',0.1);border-color:rgba('+rgb+',0.35);box-shadow:0 2px 8px rgba('+rgb+',0.1);}',
+    '.month-pill:hover{background:rgba('+rgb+',0.18);border-color:rgba('+rgb+',0.6);box-shadow:0 4px 14px rgba('+rgb+',0.22);}',
+    '.month-pill-label{color:'+t.light+';}',
+    '.dash-card.red{border-color:rgba('+rgb+',0.25);background:rgba('+rgb+',0.06);}',
+    '.dash-val.red,.hstat-val.red{color:'+t.accent+';}',
+    '.subtab.active{color:#f1f5f9;border-bottom-color:'+t.accent+';}',
+    '.view-btn.active{background:rgba('+rgb+',0.2);color:'+t.light+';}',
+    '.panel-badge{background:rgba('+rgb+',0.15);}',
+    '.cal-today{background:'+t.accent+'!important;color:#fff!important;}',
+    '.cal-cell.cal-today{background:'+t.accent+'!important;color:#fff!important;outline:none!important;}',
+    '.cal-big-cell.cal-today{background:linear-gradient(135deg,'+t.accent+','+t.dim+')!important;box-shadow:0 4px 18px rgba('+rgb+',0.45);}',
+    '.cal-modal-box::before{background:linear-gradient(90deg,'+t.accent+' 0%,'+t.dim+' 50%,'+t.light+' 100%);}',
+    '.cal-nav-btn:hover{background:rgba('+rgb+',0.15);border-color:rgba('+rgb+',0.35);color:'+t.light+';}',
+    '.prof-overlay-bg::before{background:radial-gradient(circle,rgba('+rgb+',0.18) 0%,rgba('+rgb+',0.07) 45%,transparent 70%);}',
+    '.prof-logo-badge{border-color:rgba('+rgb+',0.4);color:'+t.accent+';box-shadow:0 0 24px rgba('+rgb+',0.2),inset 0 1px 0 rgba(255,255,255,0.05);}',
+    '.welcome-name{background:linear-gradient(120deg,#ffffff 20%,'+t.light+' 60%,'+t.accent+' 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}',
+    '.fin-hidden .btn-hide-vals{color:'+t.accent+';border-color:rgba('+rgb+',0.3);background:rgba('+rgb+',0.08);}',
+    '.mobile-fab{background:linear-gradient(135deg,'+t.accent+','+t.dim+');box-shadow:0 4px 24px rgba('+rgb+',0.55),0 2px 10px rgba(0,0,0,0.5);}',
+    '.mobile-fab:active{box-shadow:0 2px 12px rgba('+rgb+',0.4);}',
+    ':root{--th-accent:'+t.accent+';--th-rgb:'+rgb+';--th-light:'+t.light+';--th-dim:'+t.dim+';}',
+  ].join('');
+}
+
+function applyTheme(key) {
+  var t = THEMES[key] || THEMES.crimson;
+  var styleEl = document.getElementById('theme-overrides');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'theme-overrides';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = _buildThemeCSS(t);
+}
+
+function loadTheme() {
+  var saved = localStorage.getItem(THEME_KEY) || 'crimson';
+  applyTheme(saved);
+}
+
+function saveTheme(key) {
+  localStorage.setItem(THEME_KEY, key);
+  applyTheme(key);
+  renderThemeModal(key);
+}
+
+function openThemeModal() {
+  var dd = document.getElementById('profileDropdown');
+  if (dd) dd.classList.remove('open');
+  var saved = localStorage.getItem(THEME_KEY) || 'crimson';
+  renderThemeModal(saved);
+  document.getElementById('themeOverlay').classList.add('open');
+}
+
+function closeThemeModal() {
+  document.getElementById('themeOverlay').classList.remove('open');
+}
+
+function themeOverlayClick(e) {
+  if (e.target === document.getElementById('themeOverlay')) closeThemeModal();
+}
+
+function renderThemeModal(activeKey) {
+  var grid = document.getElementById('themeGrid');
+  if (!grid) return;
+  var html = '';
+  Object.keys(THEMES).forEach(function(key) {
+    var t = THEMES[key];
+    var isActive = key === activeKey;
+    html += '<div class="theme-swatch-wrap' + (isActive ? ' active' : '') + '" onclick="saveTheme(\'' + key + '\')">';
+    html += '<div class="theme-swatch" style="background:linear-gradient(135deg,'+t.accent+','+t.dim+');">';
+    html += '<span class="theme-check">✓</span>';
+    html += '</div>';
+    html += '<div class="theme-swatch-name">' + t.name + '</div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
 }
 
 function toggleProfileDropdown() {
@@ -3554,8 +4271,10 @@ function renderPickerCards() {
         + '</div></div>';
   document.getElementById('profScreenBody').innerHTML = html;
   document.getElementById('profManageArea').innerHTML =
-    '<div class="prof-manage-link" onclick="showManagePrompt()"><span style="opacity:0.6;">⚙</span> Manage Profiles</div>'
-  + (_fbConfigured() ? '<div class="prof-manage-link" onclick="showPickerSyncPrompt()" style="margin-top:0.4rem;"><span style="opacity:0.6;">☁</span> Sync from another device</div>' : '');
+    '<div class="prof-picker-actions">'
+  + '<div class="prof-manage-link" onclick="showManagePrompt()"><span class="pm-icon">⚙</span><span>Manage Profiles</span></div>'
+  + (_fbConfigured() ? '<div class="prof-manage-link" onclick="showPickerSyncPrompt()"><span class="pm-icon">☁</span><span>Sync from Cloud</span></div>' : '')
+  + '</div>';
 }
 
 function showPickerSyncPrompt() {
@@ -3786,12 +4505,19 @@ function renderManageScreen() {
   document.getElementById('profManageArea').innerHTML    = '';
   var profiles = getProfiles();
   var rows = profiles.map(function(p) {
-    var delBtn = p.id === 'haziq' ? '' :
-      '<button onclick="deleteProfile(\'' + p.id + '\')" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#ef4444;border-radius:7px;padding:4px 10px;font-size:0.72rem;cursor:pointer;font-family:Inter,system-ui;">Delete</button>';
-    return '<div style="display:flex;align-items:center;gap:0.75rem;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">'
-      + '<div style="width:34px;height:34px;border-radius:9px;background:' + p.color + ';display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:#fff;flex-shrink:0;">' + escHtml(p.initials) + '</div>'
-      + '<div style="flex:1;font-size:0.85rem;color:#e2e8f0;font-weight:600;">' + escHtml(p.name) + '</div>'
-      + delBtn
+    var lockBadge = p.pinHash
+      ? '<span style="font-size:0.62rem;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.25);color:#818cf8;border-radius:5px;padding:1px 6px;font-weight:600;margin-left:6px;">🔒 PIN</span>'
+      : '<span style="font-size:0.62rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#475569;border-radius:5px;padding:1px 6px;font-weight:600;margin-left:6px;">No PIN</span>';
+    var nameBtn = '<button onclick="showEditName(\'' + p.id + '\')" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.11);color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:0.72rem;cursor:pointer;font-family:inherit;flex-shrink:0;">✏</button>';
+    var pinBtn  = '<button onclick="showEditPin(\'' + p.id + '\')"  style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#818cf8;border-radius:7px;padding:4px 9px;font-size:0.72rem;cursor:pointer;font-family:inherit;flex-shrink:0;">🔑</button>';
+    var delBtn  = p.id === 'haziq' ? '' :
+      '<button onclick="deleteProfile(\'' + p.id + '\')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.22);color:#ef4444;border-radius:7px;padding:4px 9px;font-size:0.72rem;cursor:pointer;font-family:inherit;flex-shrink:0;">🗑</button>';
+    return '<div style="display:flex;align-items:center;gap:0.5rem;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">'
+      + '<div style="width:36px;height:36px;border-radius:9px;background:' + p.color + ';display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:#fff;flex-shrink:0;">' + escHtml(p.initials) + '</div>'
+      + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:0.85rem;color:#e2e8f0;font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">' + escHtml(p.name) + lockBadge + '</div>'
+      + '</div>'
+      + nameBtn + pinBtn + (delBtn || '')
       + '</div>';
   }).join('');
   document.getElementById('profScreenBody').innerHTML =
@@ -3815,6 +4541,169 @@ function deleteProfile(id) {
   toDelete.forEach(function(k) { localStorage.removeItem(k); });
   showToast('Profile deleted');
   renderManageScreen();
+}
+
+// ── Edit Profile PIN ────────────────────────────────────
+function showEditPin(profileId) {
+  var profiles = getProfiles();
+  var p = profiles.find(function(pr) { return pr.id === profileId; });
+  if (!p) return;
+  var hasPin = !!p.pinHash;
+  document.getElementById('profScreenTitle').textContent = 'Profile PIN';
+  document.getElementById('profScreenSub').textContent   = '';
+  document.getElementById('profManageArea').innerHTML    = '';
+  var removeRow = hasPin
+    ? '<div style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem 0.9rem;border-radius:10px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);margin-top:0.25rem;">'
+        + '<div style="flex:1;">'
+          + '<div style="font-size:0.78rem;font-weight:600;color:#f87171;">Remove PIN</div>'
+          + '<div style="font-size:0.65rem;color:#475569;margin-top:1px;">Profile will be open — no PIN required to log in</div>'
+        + '</div>'
+        + '<button onclick="removePin(\''+profileId+'\')" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:7px;padding:5px 12px;font-size:0.75rem;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0;">Remove</button>'
+      + '</div>'
+    : '';
+  document.getElementById('profScreenBody').innerHTML =
+    '<div class="prof-setup-wrap" style="min-width:320px;align-items:center;">'
+  + '<div style="width:58px;height:58px;border-radius:15px;background:'+p.color+';display:flex;align-items:center;justify-content:center;font-size:1.35rem;font-weight:800;color:#fff;margin-bottom:0.5rem;box-shadow:0 6px 22px rgba(0,0,0,0.4);">'+escHtml(p.initials)+'</div>'
+  + '<div style="font-size:1rem;font-weight:700;color:#f1f5f9;">'+escHtml(p.name)+'</div>'
+  + '<div style="font-size:0.65rem;color:'+(hasPin?'#818cf8':'#475569')+';text-transform:uppercase;letter-spacing:0.1em;font-weight:600;margin-bottom:1.3rem;">'+(hasPin?'🔒 PIN Protected':'No PIN set')+'</div>'
+  + '<div class="prof-setup-label">'+(hasPin?'New PIN':'Set a PIN')+'</div>'
+  + '<input class="prof-setup-input" id="editPinNew" type="password" placeholder="Enter new PIN" maxlength="20" />'
+  + '<div class="prof-setup-label">Confirm PIN</div>'
+  + '<input class="prof-setup-input" id="editPinConfirm" type="password" placeholder="Repeat PIN" maxlength="20" onkeydown="if(event.key===\'Enter\')submitEditPin(\''+profileId+'\')" />'
+  + '<div id="editPinError" style="font-size:0.75rem;color:#ef4444;min-height:1em;width:100%;"></div>'
+  + '<button class="prof-btn" onclick="submitEditPin(\''+profileId+'\')" style="margin-top:0.25rem;">'+(hasPin?'🔑 Update PIN':'🔑 Set PIN')+'</button>'
+  + removeRow
+  + '<button class="prof-btn secondary" onclick="renderManageScreen()">← Back</button>'
+  + '</div>';
+  setTimeout(function() { var inp = document.getElementById('editPinNew'); if (inp) inp.focus(); }, 80);
+}
+
+function submitEditPin(profileId) {
+  var newPin     = (document.getElementById('editPinNew')     || {}).value || '';
+  var confirmPin = (document.getElementById('editPinConfirm') || {}).value || '';
+  var errEl = document.getElementById('editPinError');
+  if (!newPin)                  { if (errEl) errEl.textContent = 'Enter a PIN'; return; }
+  if (newPin !== confirmPin)    { if (errEl) errEl.textContent = 'PINs do not match'; return; }
+  hashPin(newPin).then(function(hash) {
+    var profiles = getProfiles();
+    var idx = profiles.findIndex(function(p) { return p.id === profileId; });
+    if (idx === -1) return;
+    profiles[idx].pinHash = hash;
+    saveProfiles(profiles);
+    showToast('PIN updated for ' + profiles[idx].name);
+    renderManageScreen();
+  });
+}
+
+function removePin(profileId) {
+  if (!confirm('Remove PIN? Anyone can then log in as this profile without a code.')) return;
+  var profiles = getProfiles();
+  var idx = profiles.findIndex(function(p) { return p.id === profileId; });
+  if (idx === -1) return;
+  profiles[idx].pinHash = null;
+  saveProfiles(profiles);
+  showToast('PIN removed — profile is now open access');
+  renderManageScreen();
+}
+
+// ── Edit Profile Name ────────────────────────────────────
+function showEditName(profileId) {
+  var profiles = getProfiles();
+  var p = profiles.find(function(pr) { return pr.id === profileId; });
+  if (!p) return;
+  document.getElementById('profScreenTitle').textContent = 'Edit Name';
+  document.getElementById('profScreenSub').textContent   = '';
+  document.getElementById('profManageArea').innerHTML    = '';
+  document.getElementById('profScreenBody').innerHTML =
+    '<div class="prof-setup-wrap" style="min-width:320px;align-items:center;">'
+  + '<div id="editNameAvatar" style="width:58px;height:58px;border-radius:15px;background:'+p.color+';display:flex;align-items:center;justify-content:center;font-size:1.35rem;font-weight:800;color:#fff;margin-bottom:0.75rem;box-shadow:0 6px 22px rgba(0,0,0,0.4);transition:all 0.2s;">'+escHtml(p.initials)+'</div>'
+  + '<div class="prof-setup-label">Display Name</div>'
+  + '<input class="prof-setup-input" id="editNameInput" type="text" placeholder="Your name" maxlength="24" value="'+escHtml(p.name)+'" oninput="updateEditNamePreview()" onkeydown="if(event.key===\'Enter\')submitEditName(\''+profileId+'\')" />'
+  + '<div id="editNameError" style="font-size:0.75rem;color:#ef4444;min-height:1em;width:100%;"></div>'
+  + '<button class="prof-btn" onclick="submitEditName(\''+profileId+'\')" style="margin-top:0.25rem;">Save Name</button>'
+  + '<button class="prof-btn secondary" onclick="renderManageScreen()">← Back</button>'
+  + '</div>';
+  setTimeout(function() { var inp = document.getElementById('editNameInput'); if (inp) { inp.focus(); inp.select(); } }, 80);
+}
+
+function updateEditNamePreview() {
+  var inp    = document.getElementById('editNameInput');
+  var avatar = document.getElementById('editNameAvatar');
+  if (!inp || !avatar) return;
+  var name     = inp.value.trim();
+  var initials = name ? name.split(/\s+/).map(function(w) { return w[0] || ''; }).join('').toUpperCase().slice(0, 2) : '?';
+  avatar.textContent = initials;
+}
+
+function submitEditName(profileId) {
+  var inp   = document.getElementById('editNameInput');
+  var errEl = document.getElementById('editNameError');
+  if (!inp) return;
+  var name = inp.value.trim();
+  if (!name) { if (errEl) errEl.textContent = 'Enter a name'; return; }
+  var profiles = getProfiles();
+  var idx = profiles.findIndex(function(p) { return p.id === profileId; });
+  if (idx === -1) return;
+  var initials = name.split(/\s+/).map(function(w) { return w[0] || ''; }).join('').toUpperCase().slice(0, 2) || name[0].toUpperCase();
+  profiles[idx].name     = name;
+  profiles[idx].initials = initials;
+  saveProfiles(profiles);
+  if (profileId === activeProfileId) applyProfileToUI(profiles[idx]);
+  showToast('Name updated to ' + name);
+  renderManageScreen();
+}
+
+// ── First-login Onboarding ───────────────────────────────
+function checkFirstTimeSetup() {
+  if (!activeProfileId) return;
+  if (localStorage.getItem(ONBOARDED_KEY)) return;
+  setTimeout(showOnboarding, 350);
+}
+
+function showOnboarding() {
+  var el = document.getElementById('onboardingOverlay');
+  if (!el) return;
+  var profiles = getProfiles();
+  var p = profiles.find(function(pr) { return pr.id === activeProfileId; });
+  if (!p) return;
+  var avatarEl = document.getElementById('onboardAvatar');
+  var nameEl   = document.getElementById('onboardName');
+  if (avatarEl) { avatarEl.textContent = p.initials; avatarEl.style.background = p.color; avatarEl.style.boxShadow = '0 8px 28px rgba(0,0,0,0.5), 0 0 0 3px ' + p.color + '44'; }
+  if (nameEl)   nameEl.textContent = p.name;
+  // Show weekend rule only when payday input has a value
+  var salDayEl = document.getElementById('obSalDay');
+  if (salDayEl) salDayEl.addEventListener('input', function() {
+    var wf = document.getElementById('obWeekendField');
+    if (wf) wf.style.display = this.value ? '' : 'none';
+  });
+  el.classList.add('open');
+}
+
+function submitOnboarding() {
+  var salDay     = parseInt((document.getElementById('obSalDay')      || {}).value)  || 0;
+  var salWeekend = (document.getElementById('obSalWeekend') || {}).value || 'friday';
+  var salary     = parseFloat((document.getElementById('obSalary')    || {}).value)  || 0;
+  var hourly     = parseFloat((document.getElementById('obHourlyRate')|| {}).value)  || 0;
+
+  if (salDay >= 1 && salDay <= 31) {
+    localStorage.setItem(SALARY_CFG_KEY, JSON.stringify({ day: salDay, weekend: salWeekend }));
+  }
+  if (salary > 0) localStorage.setItem(salaryKey, salary.toString());
+  if (hourly > 0) localStorage.setItem(OT_RATE_OVERRIDE_KEY, hourly.toString());
+
+  _closeOnboarding();
+  if (salDay || salary || hourly) {
+    renderPanelA(); renderPanelB(); renderBudget(); renderDashboard();
+    showToast('All set — your tracker is ready!');
+  }
+}
+
+function dismissOnboarding() { _closeOnboarding(); }
+
+function _closeOnboarding() {
+  localStorage.setItem(ONBOARDED_KEY, '1');
+  var el = document.getElementById('onboardingOverlay');
+  if (el) el.classList.remove('open');
 }
 
 // ── First-time setup (no profiles exist yet) ─────────────
@@ -3900,13 +4789,90 @@ _syncKey = getSyncKey();
     renderPanelB();
     renderBudget();
     if (window.innerWidth <= 768) switchMPanel('left');
+    checkFirstTimeSetup();
   } else {
     // Re-render picker in case profiles were pulled from cloud on this load
     renderPickerCards();
   }
   checkIosBridge();
+  applyFinVisibility();
 })();
 </script>
+<!-- ── First-login Onboarding ─────────────────────────── -->
+<div class="onboard-overlay" id="onboardingOverlay">
+  <div class="onboard-box">
+    <div class="onboard-header">
+      <div class="onboard-avatar-wrap" id="onboardAvatar"></div>
+      <div class="onboard-welcome">Welcome</div>
+      <div class="onboard-name" id="onboardName">—</div>
+      <div class="onboard-tagline">Answer a few quick questions so your tracker is ready from day one — skip anything you're not sure about.</div>
+    </div>
+
+    <div class="onboard-body">
+      <!-- Salary section -->
+      <div class="onboard-section">
+        <div class="onboard-section-title">💰 Salary</div>
+
+        <div class="onboard-field">
+          <label class="onboard-label">Which day of the month do you usually get paid?</label>
+          <div class="onboard-row">
+            <input id="obSalDay" type="number" inputmode="numeric" min="1" max="31" class="onboard-input" placeholder="e.g. 25" style="width:90px;" />
+            <span class="onboard-unit">of every month</span>
+          </div>
+          <div class="onboard-hint">Leave blank if you're not sure — you can change this any time in the calendar settings.</div>
+        </div>
+
+        <div class="onboard-field" id="obWeekendField" style="display:none;">
+          <label class="onboard-label">If payday falls on a weekend, when do you get paid?</label>
+          <select id="obSalWeekend" class="onboard-input">
+            <option value="friday">Friday before (most common)</option>
+            <option value="monday">Monday after</option>
+            <option value="exact">The exact date regardless</option>
+          </select>
+        </div>
+
+        <div class="onboard-field">
+          <label class="onboard-label">What's your monthly salary? <span class="onboard-optional">optional</span></label>
+          <div class="onboard-row">
+            <span class="onboard-unit">RM</span>
+            <input id="obSalary" type="number" inputmode="decimal" min="0" step="1" class="onboard-input" placeholder="e.g. 3500" style="flex:1;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Overtime section -->
+      <div class="onboard-section">
+        <div class="onboard-section-title">⏱ Overtime</div>
+
+        <div class="onboard-field">
+          <label class="onboard-label">What's your base hourly rate? <span class="onboard-optional">optional</span></label>
+          <div class="onboard-hint">Used to auto-calculate OT pay. Skip this if it doesn't apply to you.</div>
+          <div class="onboard-row" style="margin-top:0.15rem;">
+            <span class="onboard-unit">RM</span>
+            <input id="obHourlyRate" type="number" inputmode="decimal" min="0" step="0.01" class="onboard-input" placeholder="e.g. 12.50" style="flex:1;" />
+            <span class="onboard-unit">/ hr</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="onboard-footer">
+      <button class="onboard-btn-primary" onclick="submitOnboarding()">Start Tracking →</button>
+      <button class="onboard-btn-skip" onclick="dismissOnboarding()">Skip setup — I'll fill these in later</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Theme Picker Modal ────────────────────────────── -->
+<div class="theme-overlay" id="themeOverlay" onclick="themeOverlayClick(event)">
+  <div class="theme-box" id="themeBox">
+    <div class="theme-title">Appearance</div>
+    <div class="theme-sub" id="themeSubLabel">Choose your color theme — saved to your profile</div>
+    <div class="theme-grid" id="themeGrid"></div>
+    <button class="theme-done-btn" onclick="closeThemeModal()">Done</button>
+  </div>
+</div>
+
 <button class="mobile-fab" id="mobileFab" onclick="mobileFabClick()" title="Add">+</button>
 </body>
 </html>
