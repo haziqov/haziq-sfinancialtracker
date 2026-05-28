@@ -1429,7 +1429,13 @@ var FIREBASE_CONFIG = {
 const SYNC_KEY_STORAGE = 'mft_sys_sync_key';
 // Keys that must NOT sync: security-sensitive or device-specific
 var _NOSYNC = ['mft_sys_admin_hash', 'mft_sys_migrated', SYNC_KEY_STORAGE];
-function _syncable(k) { return k && k.startsWith('mft_') && _NOSYNC.indexOf(k) === -1; }
+function _syncable(k) {
+  if (!k) return false;
+  if (_NOSYNC.indexOf(k) !== -1) return false;
+  // Match both bare mft_ keys (e.g. mft_sys_profiles)
+  // and profile-prefixed keys (e.g. haziq__mft_expenses_may_2026)
+  return k.startsWith('mft_') || k.indexOf('__mft_') !== -1;
+}
 var _db           = null;
 var _syncKey      = null;
 var _cloudSyncing = false;
