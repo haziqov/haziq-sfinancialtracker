@@ -9,6 +9,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Firebase (compat SDK — paste your config below in the script) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -527,6 +530,111 @@
     /* Scrollbar for modal */
     .modal-overlay::-webkit-scrollbar { width: 0; }
 
+    /* ── Mobile greeting strip (hidden on desktop) ─── */
+    .mobile-greeting {
+      display: none; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem 0; flex-shrink: 0;
+    }
+    .mg-left { display: flex; flex-direction: column; }
+    .mg-greet { font-size: 0.7rem; color: #475569; font-weight: 500; }
+    .mg-name { font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; line-height: 1.1; }
+    .mg-right { display: flex; flex-direction: column; align-items: flex-end; }
+    .mg-period-label { font-size: 0.6rem; color: #334155; text-transform: uppercase; letter-spacing: 0.08em; }
+    .mg-period-val { font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
+
+    /* ── Mobile panel tab bar (hidden on desktop) ─── */
+    .mpanel-tabs {
+      display: none; margin: 0 1rem 0.5rem; border-radius: 12px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      padding: 3px; gap: 3px; flex-shrink: 0;
+    }
+    .mpanel-tab {
+      flex: 1; padding: 9px 0; border-radius: 9px; border: none; background: none;
+      color: #475569; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', system-ui; transition: all 0.2s; display: flex;
+      align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .mpanel-tab.active { background: rgba(239,68,68,0.18); color: #fca5a5; }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE — Mobile (≤ 768px)
+    ══════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+
+      /* ─ Header ─ */
+      header { height: 56px; padding: 0 1rem; }
+      .header-center { display: none; }
+      .btn-history { display: none; }
+      .month-pill { font-size: 0.72rem; padding: 3px 10px; }
+      .header-right { gap: 0.5rem; }
+
+      /* ─ App body: scrollable column ─ */
+      .app-body { top: 56px; overflow-y: auto; overflow-x: hidden; flex-direction: column; }
+
+      /* ─ Mobile greeting visible ─ */
+      .mobile-greeting { display: flex; }
+
+      /* ─ Dashboard: 2-column grid ─ */
+      .dashboard { padding: 0.75rem 1rem 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+      .dash-card { min-width: calc(50% - 0.25rem); flex: none; padding: 0.75rem 1rem; }
+      .dash-val { font-size: 1.1rem; }
+      .dash-label { font-size: 0.65rem; }
+
+      /* ─ Mobile panel tabs visible ─ */
+      .mpanel-tabs { display: flex; }
+
+      /* ─ Panels: full-width column ─ */
+      .panels-row { flex-direction: column; overflow: visible; padding: 0 1rem 1.5rem; gap: 0.6rem; }
+      #leftColumn { overflow: visible !important; padding-right: 0 !important; }
+      .panel-budget { height: auto; }
+      .budget-list { max-height: 180px; }
+      .panel-a { margin-right: 0; flex: none; min-height: 420px; }
+      .panel-b { width: 100%; flex: none; min-height: 420px; }
+
+      /* ─ Touch targets: always visible ─ */
+      .exp-edit  { opacity: 1 !important; width: 30px; height: 30px; font-size: 13px; }
+      .exp-del   { opacity: 1 !important; width: 30px; height: 30px; font-size: 14px; }
+      .rec-edit  { opacity: 1 !important; width: 30px; height: 30px; font-size: 13px; }
+      .rec-del   { opacity: 1 !important; width: 30px; height: 30px; font-size: 14px; }
+      .ot-entry-actions { opacity: 1 !important; }
+      .ot-entry-del { width: 28px; height: 28px; }
+      /* Bigger tap area for icon buttons */
+      .icon-btn { width: 36px; height: 36px; font-size: 15px; }
+
+      /* ─ Modals: bottom sheet on mobile ─ */
+      .modal-overlay { align-items: flex-end; }
+      .modal {
+        border-radius: 24px 24px 0 0; max-width: 100%; width: 100%;
+        padding: 1.5rem 1.25rem 2rem;
+        animation: mSheetUp 0.3s cubic-bezier(0.22,1,0.36,1) both;
+      }
+      @keyframes mSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+      .modal .cat-grid { grid-template-columns: repeat(4, 1fr); }
+      .hist-modal { border-radius: 24px 24px 0 0; max-height: 90vh; width: 100%; max-width: 100%; }
+
+      /* ─ Calendar popup: left-aligned on mobile ─ */
+      .cal-popup { right: auto; left: 0; }
+
+      /* ─ Profile picker: compact cards ─ */
+      .prof-title { font-size: 1.5rem; }
+      .prof-subtitle { font-size: 0.82rem; margin-bottom: 2rem; }
+      .prof-cards { gap: 0.75rem; }
+      .prof-avatar { width: 68px; height: 68px; font-size: 1.5rem; }
+      .prof-card { min-width: 100px; padding: 1rem 1.1rem; }
+      .prof-pin-wrap, .prof-setup-wrap {
+        min-width: unset; width: calc(100vw - 3rem); max-width: 380px; padding: 1.5rem;
+      }
+      .prof-logo { margin-bottom: 2rem; }
+
+      /* ─ Cal modal ─ */
+      .cal-modal-box { min-width: unset; width: calc(100vw - 2rem); padding: 1.25rem 1rem; }
+    }
+
+    @media (max-width: 400px) {
+      .dash-card { min-width: 100%; }
+      .prof-cards { flex-direction: column; align-items: center; }
+    }
+
     /* ── Profile Picker Overlay ───────────────────────────── */
     @keyframes profFadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
     @keyframes profGlow { 0%,100%{opacity:0.5} 50%{opacity:1} }
@@ -735,6 +843,60 @@
     }
     .color-swatch.selected { border-color: #fff; transform: scale(1.2); box-shadow: 0 0 0 3px rgba(255,255,255,0.15); }
     .prof-title:empty, .prof-subtitle:empty { display: none; }
+
+    /* ── Cloud Sync Modal ──────────────────────────────────── */
+    .sync-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .sync-overlay.hidden { display: none; }
+    .sync-box {
+      background: #0f0f0f;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px; padding: 1.8rem;
+      width: 100%; max-width: 430px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.85);
+      display: flex; flex-direction: column; gap: 1.1rem;
+    }
+    .sync-title { font-size: 1.05rem; font-weight: 700; color: #e2e8f0; }
+    .sync-label { font-size: 0.68rem; font-weight: 600; color: #64748b; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem; }
+    .sync-key-row {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 0.65rem 0.9rem;
+      display: flex; align-items: center; gap: 0.7rem;
+    }
+    .sync-key-text { font-family: monospace; font-size: 0.76rem; color: #94a3b8; word-break: break-all; flex: 1; }
+    .sync-copy-btn {
+      background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 7px; padding: 0.28rem 0.6rem;
+      color: #818cf8; font-size: 0.7rem; font-weight: 600; cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .sync-copy-btn:hover { background: rgba(99,102,241,0.28); }
+    .sync-hint { font-size: 0.65rem; color: #334155; margin-top: 0.3rem; }
+    .sync-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); }
+    .sync-input {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+      padding: 0.65rem 0.9rem; color: #e2e8f0; font-size: 0.82rem; font-family: monospace;
+      outline: none; transition: border-color 0.15s;
+    }
+    .sync-input:focus { border-color: rgba(99,102,241,0.5); }
+    .sync-input::placeholder { color: #334155; }
+    .sync-status-row { display: flex; align-items: center; gap: 0.45rem; font-size: 0.73rem; color: #64748b; min-height: 1.1rem; }
+    .sync-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: #334155; }
+    .sync-dot.green  { background: #22c55e; box-shadow: 0 0 6px #22c55e55; }
+    .sync-dot.yellow { background: #eab308; box-shadow: 0 0 6px #eab30855; }
+    .sync-dot.red    { background: #ef4444; box-shadow: 0 0 6px #ef444455; }
+    .sync-btns { display: flex; gap: 0.6rem; justify-content: flex-end; }
+    .sync-btn { padding: 0.52rem 1.1rem; border-radius: 9px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .sync-btn.primary { background: #4f46e5; color: #fff; }
+    .sync-btn.primary:hover { background: #4338ca; }
+    .sync-btn.ghost { background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); }
+    .sync-btn.ghost:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
   </style>
 </head>
 <body>
@@ -751,6 +913,35 @@
     <div class="prof-subtitle" id="profScreenSub">Select your profile to continue</div>
     <div id="profScreenBody"></div>
     <div id="profManageArea"></div>
+  </div>
+</div>
+
+<!-- Cloud Sync Modal -->
+<div class="sync-overlay hidden" id="syncOverlay">
+  <div class="sync-box">
+    <div class="sync-title">☁ Cloud Sync</div>
+    <div>
+      <div class="sync-label">Your Sync Key</div>
+      <div class="sync-key-row">
+        <span class="sync-key-text" id="syncKeyDisplay">—</span>
+        <button class="sync-copy-btn" onclick="copySyncKey()">Copy</button>
+      </div>
+      <div class="sync-hint">Share this key to sync on another device. Keep it private — anyone with it can read your data.</div>
+    </div>
+    <hr class="sync-divider">
+    <div>
+      <div class="sync-label">Use a Sync Key from another device</div>
+      <input class="sync-input" id="syncKeyInput" type="text" placeholder="Paste sync key here…" />
+    </div>
+    <div class="sync-status-row">
+      <div class="sync-dot" id="syncStatusDot"></div>
+      <span id="syncStatusText">Not connected</span>
+    </div>
+    <div class="sync-btns" style="flex-wrap:wrap;">
+      <button class="sync-btn ghost" onclick="closeSyncModal()">Close</button>
+      <button class="sync-btn ghost" onclick="pushAllToCloud()" style="color:#818cf8;border-color:rgba(99,102,241,0.3);">⬆ Upload my data</button>
+      <button class="sync-btn primary" onclick="applySyncKey()">Apply &amp; Sync Now</button>
+    </div>
   </div>
 </div>
 
@@ -818,6 +1009,9 @@
           <div class="prof-drop-item" onclick="openManageProfiles()">
             <span class="prof-drop-icon">⚙</span> Manage Profiles
           </div>
+          <div class="prof-drop-item" onclick="openSyncModal()">
+            <span class="prof-drop-icon">☁</span> Cloud Sync
+          </div>
           <hr class="prof-drop-sep">
           <div class="prof-drop-item danger" onclick="switchProfile()">
             <span class="prof-drop-icon">→</span> Sign Out
@@ -830,6 +1024,19 @@
 
 <!-- App Body -->
 <div class="app-body">
+
+  <!-- Mobile greeting (hidden on desktop via CSS) -->
+  <div class="mobile-greeting" id="mobileGreeting">
+    <div class="mg-left">
+      <div class="mg-greet" id="mgGreetText">Good morning,</div>
+      <div class="mg-name" id="mgName">—</div>
+    </div>
+    <div class="mg-right">
+      <div class="mg-period-label">Current Period</div>
+      <div class="mg-period-val" id="mgPeriod">—</div>
+    </div>
+  </div>
+
   <!-- Dashboard -->
   <div class="dashboard">
     <div class="dash-card red">
@@ -854,10 +1061,16 @@
     </div>
   </div>
 
+  <!-- Mobile panel tabs (hidden on desktop) -->
+  <div class="mpanel-tabs" id="mpanelTabs">
+    <button class="mpanel-tab active" id="mtabLeft" onclick="switchMPanel('left')">💸 Expenses</button>
+    <button class="mpanel-tab" id="mtabRight" onclick="switchMPanel('right')">⏱ OT &amp; Pay</button>
+  </div>
+
   <!-- Panels -->
   <div class="panels-row">
     <!-- Left column: Budget Planner + Expense Tracker -->
-    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.75rem;overflow:hidden;padding-right:0;">
+    <div id="leftColumn" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.75rem;overflow:hidden;padding-right:0;">
 
     <!-- Budget Planner Panel -->
     <div class="panel-budget">
@@ -1199,6 +1412,169 @@
 var activeProfileId = sessionStorage.getItem('mft_active_profile') || null;
 var profilePrefix   = activeProfileId ? activeProfileId + '__' : '';
 
+// ── Firebase / Cloud Sync ─────────────────────────────────
+// Fill in your Firebase project credentials here.
+// Leave as-is to run offline-only (sync features will be hidden).
+var FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyCgy7j7u1dO-c-_NUBpX5-OweQA2YxlG24",
+  authDomain:        "my-financial-tracker-b473e.firebaseapp.com",
+  databaseURL:       "https://my-financial-tracker-b473e-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "my-financial-tracker-b473e",
+  storageBucket:     "my-financial-tracker-b473e.firebasestorage.app",
+  messagingSenderId: "1034537453068",
+  appId:             "1:1034537453068:web:fa89242f982c35278e1029",
+  measurementId:     "G-MVTY43VW1D"
+};
+
+const SYNC_KEY_STORAGE = 'mft_sys_sync_key';
+var _db           = null;
+var _syncKey      = null;
+var _cloudSyncing = false;
+
+// Capture native methods before we override them so we can use them internally
+var _lsSet    = Storage.prototype.setItem.bind(localStorage);
+var _lsRemove = Storage.prototype.removeItem.bind(localStorage);
+
+// Patch localStorage — every mft_ write/remove automatically mirrors to Firebase
+localStorage.setItem = function(key, value) {
+  _lsSet(key, value);
+  if (!_cloudSyncing && _db && _syncKey && key.startsWith('mft_') && !key.startsWith('mft_sys_')) {
+    _db.ref(_syncKey + '/' + key).set(value).catch(function(){});
+  }
+};
+localStorage.removeItem = function(key) {
+  _lsRemove(key);
+  if (!_cloudSyncing && _db && _syncKey && key.startsWith('mft_') && !key.startsWith('mft_sys_')) {
+    _db.ref(_syncKey + '/' + key).remove().catch(function(){});
+  }
+};
+
+function _fbConfigured() {
+  return FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('PASTE');
+}
+
+function initFirebase() {
+  if (!_fbConfigured()) return;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    _db = firebase.database();
+  } catch(e) { console.warn('Firebase init failed:', e); }
+}
+
+function _genSyncKey() {
+  try { return 'mft-' + crypto.randomUUID(); } catch(e) {
+    return 'mft-' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+}
+
+function getSyncKey() {
+  var k = localStorage.getItem(SYNC_KEY_STORAGE);
+  if (!k) { k = _genSyncKey(); _lsSet(SYNC_KEY_STORAGE, k); }
+  return k;
+}
+
+async function pullFromCloud() {
+  if (!_db || !_syncKey) return;
+  try {
+    _setSyncStatus('yellow', 'Syncing…');
+    var snap = await _db.ref(_syncKey).once('value');
+    var data = snap.val();
+    if (!data) { _setSyncStatus('green', 'Connected — no cloud data yet'); return; }
+    _cloudSyncing = true;
+    Object.keys(data).forEach(function(key) {
+      if (key.startsWith('mft_') && !key.startsWith('mft_sys_')) {
+        _lsSet(key, data[key]);
+      }
+    });
+    _cloudSyncing = false;
+    _setSyncStatus('green', 'Synced — ' + Object.keys(data).length + ' records');
+  } catch(e) {
+    _cloudSyncing = false;
+    _setSyncStatus('red', 'Sync failed: ' + e.message);
+    console.warn('Cloud pull failed:', e);
+  }
+}
+
+function _setSyncStatus(color, text) {
+  var dot = document.getElementById('syncStatusDot');
+  var txt = document.getElementById('syncStatusText');
+  if (dot) { dot.className = 'sync-dot ' + color; }
+  if (txt) { txt.textContent = text; }
+}
+
+function openSyncModal() {
+  var dd = document.getElementById('profileDropdown');
+  if (dd) dd.classList.remove('open');
+  var modal = document.getElementById('syncOverlay');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  var keyEl = document.getElementById('syncKeyDisplay');
+  if (keyEl) keyEl.textContent = _syncKey || getSyncKey();
+  var inp = document.getElementById('syncKeyInput');
+  if (inp) inp.value = '';
+  if (!_fbConfigured()) {
+    _setSyncStatus('red', 'Firebase not configured yet');
+  } else if (_db) {
+    _setSyncStatus(_syncKey ? 'green' : 'grey', _syncKey ? 'Connected' : 'No sync key');
+  } else {
+    _setSyncStatus('grey', 'Not initialized');
+  }
+}
+
+function closeSyncModal() {
+  var modal = document.getElementById('syncOverlay');
+  if (modal) modal.classList.add('hidden');
+}
+
+function copySyncKey() {
+  var key = _syncKey || getSyncKey();
+  navigator.clipboard.writeText(key).then(function() {
+    var btn = document.querySelector('.sync-copy-btn');
+    if (!btn) return;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 1800);
+  }).catch(function() {
+    prompt('Copy your sync key:', key);
+  });
+}
+
+async function applySyncKey() {
+  var inp = document.getElementById('syncKeyInput');
+  var key = inp ? inp.value.trim() : '';
+  if (!key) { _setSyncStatus('red', 'Please enter a sync key'); return; }
+  if (!_db) { _setSyncStatus('red', 'Firebase not configured'); return; }
+  _syncKey = key;
+  _lsSet(SYNC_KEY_STORAGE, key);
+  var keyEl = document.getElementById('syncKeyDisplay');
+  if (keyEl) keyEl.textContent = key;
+  if (inp) inp.value = '';
+  await pullFromCloud();
+  if (activeProfileId) { renderPanelA(); renderPanelB(); renderBudget(); }
+}
+
+async function pushAllToCloud() {
+  if (!_db) { _setSyncStatus('red', 'Firebase not configured'); return; }
+  if (!_syncKey) { _syncKey = getSyncKey(); }
+  _setSyncStatus('yellow', 'Uploading…');
+  try {
+    var batch = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.startsWith('mft_') && !k.startsWith('mft_sys_')) {
+        batch[k] = localStorage.getItem(k);
+      }
+    }
+    await _db.ref(_syncKey).update(batch);
+    _setSyncStatus('green', 'Uploaded ' + Object.keys(batch).length + ' records');
+  } catch(e) {
+    _setSyncStatus('red', 'Upload failed: ' + e.message);
+    console.warn('Push failed:', e);
+  }
+}
+
 // ── ALL CONSTANTS DECLARED FIRST — no TDZ issues ──
 const now = new Date();
 const ALL_MONTHS = ['January','February','March','April','May','June',
@@ -1486,6 +1862,9 @@ function updateHeaderStats() {
   if (spentEl)     spentEl.textContent     = 'RM ' + totalSpent.toFixed(2);
   if (projectedEl) projectedEl.textContent = projected > 0 ? 'RM ' + projected.toFixed(2) : '—';
   if (otEl)        otEl.textContent        = otPay > 0 ? 'RM ' + otPay.toFixed(2) : '—';
+  // Mobile greeting period
+  var mgPeriod = document.getElementById('mgPeriod');
+  if (mgPeriod) mgPeriod.textContent = periodLabel;
 }
 function saveOT(arr) {
   localStorage.setItem(OT_KEY, JSON.stringify(arr));
@@ -2648,6 +3027,8 @@ if ('serviceWorker' in navigator) {
   const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
   const greetEl = document.getElementById('welcomeGreeting');
   if (greetEl) greetEl.textContent = greet;
+  var mgGreetEl = document.getElementById('mgGreetText');
+  if (mgGreetEl) mgGreetEl.textContent = greet + ',';
   const el = document.getElementById('welcomeDate');
   if (el) el.textContent = day + ', ' + date + ' ' + mon + ' ' + yr;
 })();
@@ -2981,6 +3362,38 @@ function saveBudgetSettings() {
 }
 
 // ═══════════════════════════════════════════════════
+// MOBILE PANEL SWITCHING
+// ═══════════════════════════════════════════════════
+function switchMPanel(panel) {
+  var leftCol = document.getElementById('leftColumn');
+  var panelB  = document.querySelector('.panel-b');
+  var tabL    = document.getElementById('mtabLeft');
+  var tabR    = document.getElementById('mtabRight');
+  if (!leftCol || !panelB) return;
+  if (panel === 'left') {
+    leftCol.style.display = '';
+    panelB.style.display  = 'none';
+    if (tabL) tabL.classList.add('active');
+    if (tabR) tabR.classList.remove('active');
+  } else {
+    leftCol.style.display = 'none';
+    panelB.style.display  = '';
+    if (tabL) tabL.classList.remove('active');
+    if (tabR) tabR.classList.add('active');
+  }
+}
+
+// Reset panel visibility on desktop resize (in case user resizes from mobile)
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 768) {
+    var leftCol = document.getElementById('leftColumn');
+    var panelB  = document.querySelector('.panel-b');
+    if (leftCol) leftCol.style.display = '';
+    if (panelB)  panelB.style.display  = '';
+  }
+});
+
+// ═══════════════════════════════════════════════════
 // PROFILE SYSTEM
 // ═══════════════════════════════════════════════════
 const PROF_KEY       = 'mft_sys_profiles';
@@ -3033,9 +3446,11 @@ function applyProfileToUI(profile) {
   var dropName   = document.getElementById('profDropName');
   if (dropAvatar) { dropAvatar.textContent = profile.initials; dropAvatar.style.background = profile.color; }
   if (dropName)   { dropName.textContent = profile.name; }
-  // Welcome name in header
+  // Welcome name in header + mobile greeting
   var nameEl = document.getElementById('welcomeName');
   if (nameEl) nameEl.textContent = profile.name;
+  var mgNameEl = document.getElementById('mgName');
+  if (mgNameEl) mgNameEl.textContent = profile.name;
 }
 
 function toggleProfileDropdown() {
@@ -3385,12 +3800,19 @@ function submitFirstTimeSetup() {
   hideProfilePicker();
 })();
 
-if (activeProfileId) {
-  renderPanelA();
-  renderPanelB();
-  renderBudget();
-}
-checkIosBridge();
+// Init Firebase then pull cloud data before rendering
+initFirebase();
+_syncKey = getSyncKey();
+(async function() {
+  if (_fbConfigured()) await pullFromCloud();
+  if (activeProfileId) {
+    renderPanelA();
+    renderPanelB();
+    renderBudget();
+    if (window.innerWidth <= 768) switchMPanel('left');
+  }
+  checkIosBridge();
+})();
 </script>
 </body>
 </html>
