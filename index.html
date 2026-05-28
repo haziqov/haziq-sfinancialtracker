@@ -630,6 +630,27 @@
       .cal-modal-box { min-width: unset; width: calc(100vw - 2rem); padding: 1.25rem 1rem; }
     }
 
+    /* ── Floating Action Button (mobile only) ─────────────── */
+    .mobile-fab {
+      display: none;
+      position: fixed; bottom: 1.6rem; right: 1.4rem; z-index: 45;
+      width: 58px; height: 58px; border-radius: 50%;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff; border: none; font-size: 2rem; line-height: 1;
+      align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(239,68,68,0.55), 0 2px 10px rgba(0,0,0,0.5);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .mobile-fab:active { transform: scale(0.91); box-shadow: 0 2px 12px rgba(239,68,68,0.4); }
+
+    @media (max-width: 768px) {
+      .mobile-fab { display: flex; }
+      /* Hide the small + buttons and scan btn from panel headers — FAB replaces them */
+      .btn-scan { display: none; }
+      .panel-actions .icon-btn.red { display: none; }
+    }
+
     @media (max-width: 400px) {
       .dash-card { min-width: 100%; }
       .prof-cards { flex-direction: column; align-items: center; }
@@ -3379,6 +3400,15 @@ function saveBudgetSettings() {
 // ═══════════════════════════════════════════════════
 // MOBILE PANEL SWITCHING
 // ═══════════════════════════════════════════════════
+function mobileFabClick() {
+  var tabR = document.getElementById('mtabRight');
+  if (tabR && tabR.classList.contains('active')) {
+    openAddOT();
+  } else {
+    openAddExpense();
+  }
+}
+
 function switchMPanel(panel) {
   var leftCol = document.getElementById('leftColumn');
   var panelB  = document.querySelector('.panel-b');
@@ -3877,5 +3907,6 @@ _syncKey = getSyncKey();
   checkIosBridge();
 })();
 </script>
+<button class="mobile-fab" id="mobileFab" onclick="mobileFabClick()" title="Add">+</button>
 </body>
 </html>
