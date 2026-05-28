@@ -1427,6 +1427,9 @@ var FIREBASE_CONFIG = {
 };
 
 const SYNC_KEY_STORAGE = 'mft_sys_sync_key';
+// Keys that must NOT sync: security-sensitive or device-specific
+var _NOSYNC = ['mft_sys_admin_hash', 'mft_sys_migrated', SYNC_KEY_STORAGE];
+function _syncable(k) { return k && k.startsWith('mft_') && _NOSYNC.indexOf(k) === -1; }
 var _db           = null;
 var _syncKey      = null;
 var _cloudSyncing = false;
@@ -1438,13 +1441,13 @@ var _lsRemove = Storage.prototype.removeItem.bind(localStorage);
 // Patch localStorage — every mft_ write/remove automatically mirrors to Firebase
 localStorage.setItem = function(key, value) {
   _lsSet(key, value);
-  if (!_cloudSyncing && _db && _syncKey && key.startsWith('mft_') && !key.startsWith('mft_sys_')) {
+  if (!_cloudSyncing && _db && _syncKey && _syncable(key)) {
     _db.ref(_syncKey + '/' + key).set(value).catch(function(){});
   }
 };
 localStorage.removeItem = function(key) {
   _lsRemove(key);
-  if (!_cloudSyncing && _db && _syncKey && key.startsWith('mft_') && !key.startsWith('mft_sys_')) {
+  if (!_cloudSyncing && _db && _syncKey && _syncable(key)) {
     _db.ref(_syncKey + '/' + key).remove().catch(function(){});
   }
 };
@@ -1485,7 +1488,7 @@ async function pullFromCloud() {
     if (!data) { _setSyncStatus('green', 'Connected — no cloud data yet'); return; }
     _cloudSyncing = true;
     Object.keys(data).forEach(function(key) {
-      if (key.startsWith('mft_') && !key.startsWith('mft_sys_')) {
+      if (_syncable(key)) {
         _lsSet(key, data[key]);
       }
     });
@@ -1569,7 +1572,7 @@ async function pushAllToCloud() {
     var batch = {};
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
-      if (k && k.startsWith('mft_') && !k.startsWith('mft_sys_')) {
+      if (_syncable(k)) {
         batch[k] = localStorage.getItem(k);
       }
     }
@@ -3552,7 +3555,7 @@ async function pickerSyncApply() {
     if (!data) { if (statusEl) statusEl.textContent = 'No data found for this key. Check the key and try again.'; return; }
     _cloudSyncing = true;
     Object.keys(data).forEach(function(k) {
-      if (k.startsWith('mft_') && !k.startsWith('mft_sys_')) _lsSet(k, data[k]);
+      if (_syncable(k)) _lsSet(k, data[k]);
     });
     _cloudSyncing = false;
     if (statusEl) statusEl.textContent = 'Synced ' + Object.keys(data).length + ' records. Loading profiles…';
