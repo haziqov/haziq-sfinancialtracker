@@ -593,6 +593,15 @@
     }
     .btn-scan:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
 
+    /* Variable debt bill history */
+    .debt-bill-row { display:flex; align-items:center; gap:0.5rem; padding:0.3rem 0.5rem; border-radius:7px; font-size:0.75rem; transition:background 0.15s; }
+    .debt-bill-row:hover { background:rgba(255,255,255,0.04); }
+    .debt-bill-month { flex:1; color:#94a3b8; }
+    .debt-bill-amt { font-weight:700; color:#f9a8d4; }
+    .debt-bill-paid { font-size:0.68rem; color:#22c55e; font-weight:600; }
+    .debt-bill-unpaid { font-size:0.68rem; color:#f97316; font-weight:600; }
+    .debt-bill-del { background:none; border:none; color:#475569; cursor:pointer; font-size:0.8rem; padding:2px 5px; border-radius:4px; line-height:1; }
+    .debt-bill-del:hover { color:#ef4444; background:rgba(239,68,68,0.1); }
     /* Debt Tracker Panel */
     .panel-debt { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
     .debt-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -2396,20 +2405,77 @@
     <div class="field-label">Name</div>
     <input type="text" id="debtName" placeholder="e.g. Car Loan, Credit Card" />
 
+    <!-- Debt type toggle -->
+    <div class="field-label" style="margin-top:0.75rem;">Payment Type</div>
+    <div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;">
+      <button id="debtTypeFixed" onclick="setDebtType('fixed')"
+        style="flex:1;padding:0.45rem 0;border-radius:8px;border:1px solid rgba(244,114,182,0.5);background:rgba(244,114,182,0.12);color:#f9a8d4;font-size:0.78rem;font-weight:700;cursor:pointer;">
+        🔒 Fixed monthly
+      </button>
+      <button id="debtTypeVariable" onclick="setDebtType('variable')"
+        style="flex:1;padding:0.45rem 0;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569;font-size:0.78rem;font-weight:700;cursor:pointer;">
+        🔀 Variable (e.g. BNPL)
+      </button>
+    </div>
+
     <div class="field-label">Total Original Amount</div>
     <input type="number" id="debtTotal" inputmode="decimal" placeholder="e.g. 20000" min="0" step="0.01" />
 
     <div class="field-label">Current Remaining Balance</div>
     <input type="number" id="debtRemaining" inputmode="decimal" placeholder="e.g. 15000" min="0" step="0.01" />
 
-    <div class="field-label">Monthly Minimum Payment <span style="color:#475569;">(optional)</span></div>
-    <input type="number" id="debtMinPay" inputmode="decimal" placeholder="e.g. 500" min="0" step="0.01" />
+    <!-- Fixed payment fields -->
+    <div id="debtFixedFields">
+      <div class="field-label">Monthly Minimum Payment <span style="color:#475569;">(optional)</span></div>
+      <input type="number" id="debtMinPay" inputmode="decimal" placeholder="e.g. 500" min="0" step="0.01" />
 
-    <div class="field-label">Due Day of Month <span style="color:#475569;">(optional, 1–31)</span></div>
-    <input type="number" id="debtDueDay" inputmode="numeric" placeholder="e.g. 15" min="1" max="31" />
+      <div class="field-label">Due Day of Month <span style="color:#475569;">(optional, 1–31)</span></div>
+      <input type="number" id="debtDueDay" inputmode="numeric" placeholder="e.g. 15" min="1" max="31" />
+    </div>
+
+    <!-- Variable payment fields -->
+    <div id="debtVariableFields" style="display:none;">
+      <div style="background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.15);border-radius:10px;padding:0.7rem 0.85rem;margin-bottom:0.5rem;">
+        <div style="font-size:0.75rem;color:#f9a8d4;font-weight:600;margin-bottom:0.2rem;">🔀 Variable billing mode</div>
+        <div style="font-size:0.72rem;color:#64748b;line-height:1.5;">Your bill changes every month (like ShopeePay Later). After saving, log each month's bill from the debt card — the tracker will update your balance and remind you when it's due.</div>
+      </div>
+      <div class="field-label">Due Day of Month <span style="color:#475569;">(optional, 1–31)</span></div>
+      <input type="number" id="debtDueDayVar" inputmode="numeric" placeholder="e.g. 15" min="1" max="31" />
+    </div>
 
     <button class="modal-btn blue" id="debtSaveBtn" onclick="saveDebtEntry()">Add Debt</button>
     <button class="modal-btn secondary" onclick="closeAddDebt()">Cancel</button>
+  </div>
+</div>
+
+<!-- Log Monthly Bill Modal (for variable debts) -->
+<div class="modal-overlay" id="logBillModal" onclick="if(event.target===this)closeLogBill()">
+  <div class="modal" style="max-width:380px;">
+    <button class="modal-close" onclick="closeLogBill()">✕</button>
+    <div class="modal-icon">🧾</div>
+    <div class="modal-title" id="logBillTitle">Log This Month's Bill</div>
+    <div class="modal-sub" id="logBillSub"></div>
+
+    <div class="field-label">Bill Amount This Month</div>
+    <input type="number" id="logBillAmt" inputmode="decimal" placeholder="e.g. 342.50" min="0" step="0.01" oninput="updateLogBillPreview()" />
+
+    <div class="field-label">Month <span style="color:#475569;">(auto-filled)</span></div>
+    <input type="text" id="logBillMonth" placeholder="e.g. June 2025" />
+
+    <div id="logBillPreview" style="display:none;background:rgba(244,114,182,0.07);border:1px solid rgba(244,114,182,0.18);border-radius:10px;padding:0.7rem 1rem;margin-top:0.5rem;">
+      <div style="font-size:0.72rem;color:#64748b;margin-bottom:0.25rem;">New remaining balance after paying this bill:</div>
+      <div id="logBillNewBalance" style="font-size:1.1rem;font-weight:800;color:#f9a8d4;">—</div>
+    </div>
+
+    <div style="margin-top:0.75rem;">
+      <label style="display:flex;align-items:center;gap:0.55rem;cursor:pointer;">
+        <input type="checkbox" id="logBillPaid" style="width:16px;height:16px;accent-color:#f472b6;" />
+        <span style="font-size:0.82rem;color:#94a3b8;">I've already paid this bill</span>
+      </label>
+    </div>
+
+    <button class="modal-btn primary" style="background:linear-gradient(135deg,#f472b6,#db2777);box-shadow:0 4px 16px rgba(244,114,182,0.3);margin-top:1rem;" onclick="saveLogBill()">Save Bill</button>
+    <button class="modal-btn secondary" onclick="closeLogBill()">Cancel</button>
   </div>
 </div>
 
@@ -3342,8 +3408,10 @@ function openAddDebt() {
   document.getElementById('debtRemaining').value = '';
   document.getElementById('debtMinPay').value    = '';
   document.getElementById('debtDueDay').value    = '';
+  document.getElementById('debtDueDayVar').value = '';
   document.getElementById('debtModalTitle').textContent = 'Add Debt';
   document.getElementById('debtSaveBtn').textContent    = 'Add Debt';
+  setDebtType('fixed');
   document.getElementById('addDebtModal').classList.add('open');
 }
 
@@ -3352,13 +3420,16 @@ function openEditDebt(id) {
   var entry = list.find(function(e) { return e.id === id; });
   if (!entry) return;
   _editDebtTarget = entry;
+  var isVar = entry.variable === true;
   document.getElementById('debtName').value      = entry.name      || '';
   document.getElementById('debtTotal').value     = entry.total     || '';
   document.getElementById('debtRemaining').value = entry.remaining || '';
   document.getElementById('debtMinPay').value    = entry.minPay    || '';
-  document.getElementById('debtDueDay').value    = entry.dueDay    || '';
+  document.getElementById('debtDueDay').value    = (!isVar && entry.dueDay) ? entry.dueDay : '';
+  document.getElementById('debtDueDayVar').value = (isVar && entry.dueDay)  ? entry.dueDay : '';
   document.getElementById('debtModalTitle').textContent = 'Edit Debt';
   document.getElementById('debtSaveBtn').textContent    = 'Save Changes';
+  setDebtType(isVar ? 'variable' : 'fixed');
   document.getElementById('addDebtModal').classList.add('open');
 }
 
@@ -3374,6 +3445,11 @@ function saveDebtEntry() {
   var minPay    = parseFloat(document.getElementById('debtMinPay').value)    || 0;
   var dueDay    = parseInt(document.getElementById('debtDueDay').value, 10)  || 0;
 
+  var isVariable = (_debtType === 'variable');
+  var dueDayFinal = isVariable
+    ? (parseInt(document.getElementById('debtDueDayVar').value, 10) || 0)
+    : dueDay;
+
   if (!name)               { showToast('Please enter a debt name'); return; }
   if (isNaN(remaining) || remaining < 0) { showToast('Please enter the current remaining balance'); return; }
   if (total <= 0) total = remaining;
@@ -3382,13 +3458,18 @@ function saveDebtEntry() {
   if (_editDebtTarget) {
     var idx = list.findIndex(function(e) { return e.id === _editDebtTarget.id; });
     if (idx !== -1) {
-      list[idx] = { id: _editDebtTarget.id, color: _editDebtTarget.color, name: name, total: total, remaining: remaining, minPay: minPay, dueDay: dueDay };
+      var existing = list[idx];
+      list[idx] = { id: existing.id, color: existing.color, name: name, total: total, remaining: remaining,
+                    minPay: isVariable ? 0 : minPay, dueDay: dueDayFinal,
+                    variable: isVariable, bills: existing.bills || [] };
     }
     saveDebts(list); closeAddDebt(); renderDebtPanel(); syncDebtCommitments(); renderCommitments(); updateDueAlert(); renderDashboard();
     showToast('Debt updated');
   } else {
     var color = _DEBT_COLORS[list.length % _DEBT_COLORS.length];
-    list.push({ id: uid(), color: color, name: name, total: total, remaining: remaining, minPay: minPay, dueDay: dueDay });
+    list.push({ id: uid(), color: color, name: name, total: total, remaining: remaining,
+                minPay: isVariable ? 0 : minPay, dueDay: dueDayFinal,
+                variable: isVariable, bills: [] });
     saveDebts(list); closeAddDebt(); renderDebtPanel(); syncDebtCommitments(); renderCommitments(); updateDueAlert(); renderDashboard();
     showToast('Debt added: ' + name);
   }
@@ -3426,6 +3507,134 @@ function syncDebtCommitments() {
 }
 
 function setDebtView(v) { _debtView = v; renderDebtPanel(); }
+
+// ── Variable debt type toggle ─────────────────────────────────────────────
+var _debtType = 'fixed'; // 'fixed' | 'variable'
+function setDebtType(type) {
+  _debtType = type;
+  var fixedFields    = document.getElementById('debtFixedFields');
+  var varFields      = document.getElementById('debtVariableFields');
+  var btnFixed       = document.getElementById('debtTypeFixed');
+  var btnVar         = document.getElementById('debtTypeVariable');
+  var activeStyle    = 'border:1px solid rgba(244,114,182,0.5);background:rgba(244,114,182,0.12);color:#f9a8d4;';
+  var inactiveStyle  = 'border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569;';
+  if (type === 'variable') {
+    fixedFields.style.display = 'none';
+    varFields.style.display   = '';
+    btnFixed.style.cssText    += inactiveStyle;
+    btnVar.style.cssText      += activeStyle;
+  } else {
+    fixedFields.style.display = '';
+    varFields.style.display   = 'none';
+    btnFixed.style.cssText    += activeStyle;
+    btnVar.style.cssText      += inactiveStyle;
+  }
+}
+
+// ── Log monthly bill (variable debts) ────────────────────────────────────────
+var _logBillDebtId = null;
+var ALL_MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function openLogBill(debtId) {
+  var debt = loadDebts().find(function(d) { return d.id === debtId; });
+  if (!debt) return;
+  _logBillDebtId = debtId;
+  document.getElementById('logBillTitle').textContent = debt.name + ' — Monthly Bill';
+  document.getElementById('logBillSub').textContent   = 'Current remaining: ' + fmt(parseFloat(debt.remaining) || 0);
+  document.getElementById('logBillAmt').value         = '';
+  document.getElementById('logBillPaid').checked      = false;
+  document.getElementById('logBillPreview').style.display = 'none';
+  // Auto-fill current month
+  var now = new Date();
+  document.getElementById('logBillMonth').value = ALL_MONTHS_FULL[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('logBillModal').classList.add('open');
+  setTimeout(function() { document.getElementById('logBillAmt').focus(); }, 80);
+}
+
+function closeLogBill() {
+  _logBillDebtId = null;
+  document.getElementById('logBillModal').classList.remove('open');
+}
+
+function updateLogBillPreview() {
+  var debt = _logBillDebtId ? loadDebts().find(function(d) { return d.id === _logBillDebtId; }) : null;
+  if (!debt) return;
+  var amt  = parseFloat(document.getElementById('logBillAmt').value) || 0;
+  var prev = document.getElementById('logBillPreview');
+  var balEl= document.getElementById('logBillNewBalance');
+  if (amt > 0) {
+    var newBal = Math.max(0, (parseFloat(debt.remaining) || 0) + amt);
+    balEl.textContent = fmt(newBal);
+    prev.style.display = '';
+  } else {
+    prev.style.display = 'none';
+  }
+}
+
+function saveLogBill() {
+  var amt   = parseFloat(document.getElementById('logBillAmt').value);
+  var month = (document.getElementById('logBillMonth').value || '').trim();
+  var paid  = document.getElementById('logBillPaid').checked;
+  if (!amt || amt <= 0) { showToast('Enter the bill amount'); return; }
+  if (!month) { showToast('Enter the month'); return; }
+
+  var list  = loadDebts();
+  var debt  = list.find(function(d) { return d.id === _logBillDebtId; });
+  if (!debt) return;
+
+  if (!debt.bills) debt.bills = [];
+  debt.bills.unshift({ id: uid(), month: month, amount: amt, paid: paid });
+
+  // Update remaining: add bill to balance, subtract if paid
+  var remaining = parseFloat(debt.remaining) || 0;
+  remaining += amt;           // new bill adds to what you owe
+  if (paid) remaining -= amt; // if already paid, balance stays same
+  remaining = Math.max(0, remaining);
+  debt.remaining = remaining;
+
+  // Update total if remaining now exceeds it
+  if (remaining > (parseFloat(debt.total) || 0)) debt.total = remaining;
+
+  saveDebts(list);
+  closeLogBill();
+  renderDebtPanel();
+  syncDebtCommitments();
+  renderCommitments();
+  renderDashboard();
+  showToast(paid ? 'Bill logged & marked paid ✓' : 'Bill logged — remember to pay by due date!');
+}
+
+function markBillPaid(debtId, billId) {
+  var list = loadDebts();
+  var debt = list.find(function(d) { return d.id === debtId; });
+  if (!debt || !debt.bills) return;
+  var bill = debt.bills.find(function(b) { return b.id === billId; });
+  if (!bill || bill.paid) return;
+  bill.paid = true;
+  // Paying reduces remaining
+  debt.remaining = Math.max(0, (parseFloat(debt.remaining) || 0) - (parseFloat(bill.amount) || 0));
+  saveDebts(list);
+  renderDebtPanel();
+  renderDashboard();
+  showToast('Marked as paid ✓');
+}
+
+function deleteBillEntry(debtId, billId) {
+  var list = loadDebts();
+  var debt = list.find(function(d) { return d.id === debtId; });
+  if (!debt || !debt.bills) return;
+  var bill = debt.bills.find(function(b) { return b.id === billId; });
+  if (!bill) return;
+  // If bill was unpaid, roll back the balance addition
+  if (!bill.paid) {
+    debt.remaining = Math.max(0, (parseFloat(debt.remaining) || 0) - (parseFloat(bill.amount) || 0));
+  }
+  debt.bills = debt.bills.filter(function(b) { return b.id !== billId; });
+  saveDebts(list);
+  renderDebtPanel();
+  renderDashboard();
+  showToast('Bill entry removed');
+}
 
 function toggleDebtAdvice(id) {
   _debtAdviceOpen[id] = !_debtAdviceOpen[id];
