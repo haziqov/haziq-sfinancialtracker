@@ -1080,6 +1080,10 @@
       .rec-del   { opacity: 1 !important; width: 38px; height: 38px; font-size: 15px; }
       .debt-card-actions { opacity: 1 !important; }
       .ot-entry-actions  { opacity: 1 !important; }
+      /* Goal advice bulb — always visible on mobile, not faded */
+      .goal-action-advice { opacity: 1 !important; filter: none !important; }
+      /* Goal action buttons — bigger tap area */
+      .goal-action-btn { width: 36px; height: 36px; font-size: 16px; display: flex; align-items: center; justify-content: center; }
       /* Bigger tap area for icon buttons — including the red + add buttons */
       .icon-btn { width: 40px; height: 40px; font-size: 16px; }
       .icon-btn.red { width: 40px; height: 40px; font-size: 20px; font-weight: 700; }
@@ -3423,6 +3427,41 @@ function syncDebtCommitments() {
 
 function setDebtView(v) { _debtView = v; renderDebtPanel(); }
 
+function toggleDebtAdvice(id) {
+  _debtAdviceOpen[id] = !_debtAdviceOpen[id];
+  renderDebtPanel();
+}
+
+function debtAdviceHtml(e) {
+  var remaining = parseFloat(e.remaining) || 0;
+  if (remaining <= 0) {
+    return '<div class="goal-advice" style="border-color:rgba(244,114,182,0.2);background:rgba(244,114,182,0.06);">'
+      + '<div class="goal-advice-done" style="color:#4ade80;">🎉 Debt cleared!</div>'
+      + '</div>';
+  }
+  var color = e.color || '#f472b6';
+  var timelines = [
+    { label: '3 months',  months: 3  },
+    { label: '6 months',  months: 6  },
+    { label: '12 months', months: 12 },
+    { label: '24 months', months: 24 },
+  ];
+  var h = '<div class="goal-advice" style="border-color:rgba(244,114,182,0.2);background:rgba(244,114,182,0.06);margin-top:0.5rem;">';
+  h += '<div class="goal-advice-title" style="color:#f9a8d4;">💡 Payoff plan — no monthly payment set</div>';
+  h += '<div class="goal-advice-rows" style="margin-top:0.4rem;">';
+  timelines.forEach(function(t) {
+    var perMonth = remaining / t.months;
+    h += '<div class="goal-advice-row">';
+    h += '<span>Pay off in ' + t.label + '</span>';
+    h += '<span class="goal-advice-row-val" style="color:#f9a8d4;">' + fmt(perMonth) + '/mo</span>';
+    h += '</div>';
+  });
+  h += '</div>';
+  h += '<div class="goal-advice-tip">Set a monthly payment amount when editing this debt to track it in Commitments.</div>';
+  h += '</div>';
+  return h;
+}
+
 function renderDebtPanel() {
   var el = document.getElementById('debtBody');
   if (!el) return;
@@ -3547,6 +3586,10 @@ function renderDebtPanel() {
         html += '<div class="debt-card-dot" style="background:' + color + ';"></div>';
         html += '<div class="debt-card-name">' + escHtml(e.name) + '</div>';
         html += '<div class="debt-card-actions">';
+        if (!(parseFloat(e.minPay) > 0)) {
+          var advOpen = !!_debtAdviceOpen[e.id];
+          html += '<button class="goal-action-btn goal-action-advice' + (advOpen ? ' active' : '') + '" onclick="toggleDebtAdvice(\'' + e.id + '\')" title="Payoff advice" style="font-size:15px;opacity:1;filter:none;">💡</button>';
+        }
         html += '<button class="ot-entry-edit" onclick="openEditDebt(\'' + e.id + '\')">✎</button>';
         html += '<button class="ot-entry-del"  onclick="deleteDebt(\'' + e.id + '\')">✕</button>';
         html += '</div>';
@@ -3568,6 +3611,10 @@ function renderDebtPanel() {
         }
         html += '</div>';
         html += '</div>';
+        // Advice panel — shown when 💡 is toggled and no minPay set
+        if (!(parseFloat(e.minPay) > 0) && _debtAdviceOpen[e.id]) {
+          html += debtAdviceHtml(e);
+        }
         html += '</div>';
       });
     }
@@ -4902,6 +4949,7 @@ function commitTotal() {
 
 var _commitExpanded = false;
 var _debtView = 'list';
+var _debtAdviceOpen = {}; // tracks which debt card has advice panel open
 
 function toggleCommitList() {
   _commitExpanded = !_commitExpanded;
