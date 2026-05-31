@@ -331,6 +331,7 @@
     .dash-card.blue { border-color: rgba(59,130,246,0.25); background: rgba(59,130,246,0.06); }
     .dash-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; }
     .dash-month-hl { color: #22c55e; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .dash-month-hl-red { color: #f87171; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
     .dash-val { font-size: 1.4rem; font-weight: 700; color: #f1f5f9; }
     .dash-val.red { color: #ef4444; }
     .dash-val.green { color: #22c55e; }
@@ -787,6 +788,11 @@
     .expense-list::-webkit-scrollbar-track { background: transparent; }
     .expense-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
+    .exp-date-hdr { display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0.5rem 0.18rem; margin-top:0.1rem; }
+    .exp-date-hdr-lbl { font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#475569; }
+    .exp-date-hdr-lbl.today { color:#f87171; }
+    .exp-date-hdr-amt { font-size:0.68rem; font-weight:600; color:#475569; }
+    .exp-date-hdr-amt.today { color:#f87171; }
     .expense-row {
       display: flex; align-items: center; gap: 0.75rem;
       padding: 0.6rem 0.5rem; border-radius: 10px;
@@ -991,7 +997,9 @@
       display: none; margin: 0 1rem 0.5rem; border-radius: 12px;
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
       padding: 3px; gap: 3px; flex-shrink: 0;
+      overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
+    .mpanel-tabs::-webkit-scrollbar { display: none; }
     .mpanel-tab {
       flex: 1; padding: 9px 0; border-radius: 9px; border: none; background: none;
       color: #475569; font-size: 0.8rem; font-weight: 600; cursor: pointer;
@@ -999,6 +1007,23 @@
       align-items: center; justify-content: center; gap: 0.4rem;
     }
     .mpanel-tab.active { background: rgba(239,68,68,0.18); color: #fca5a5; }
+    .mpanel-tab-grp {
+      flex-shrink: 0; display: flex; align-items: stretch; border-radius: 9px;
+      overflow: hidden; transition: background 0.2s;
+    }
+    .mpanel-tab-grp.active { background: rgba(239,68,68,0.18); }
+    .mpanel-tab-lbl {
+      padding: 9px 11px 9px 13px; border: none; background: none; color: #475569;
+      font-size: 0.76rem; font-weight: 600; cursor: pointer; font-family: 'Inter', system-ui;
+      white-space: nowrap; transition: color 0.2s;
+    }
+    .mpanel-tab-grp.active .mpanel-tab-lbl { color: #fca5a5; }
+    .mpanel-tab-add {
+      padding: 0 10px; border: none; border-left: 1px solid rgba(255,255,255,0.06);
+      background: none; color: #475569; font-size: 1rem; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', system-ui; transition: color 0.2s; display: flex; align-items: center;
+    }
+    .mpanel-tab-grp.active .mpanel-tab-add { color: #f87171; }
 
     /* ══════════════════════════════════════════════════
        RESPONSIVE — Mobile (≤ 768px)
@@ -1965,12 +1990,13 @@
   <!-- Dashboard -->
   <div class="dashboard">
     <div class="dash-card red">
-      <div class="dash-label">Monthly Nett Income</div>
+      <div class="dash-label" id="dashIncomeLabel"><span id="dashIncomeMonth" class="dash-month-hl-red"></span> Nett Income</div>
       <div class="dash-val red" id="dashIncome">—</div>
       <div class="dash-sub" id="dashIncomeSub">tap to configure</div>
+      <div id="dashIncomeExtra" style="display:none;font-size:0.62rem;color:#94a3b8;margin-top:0.18rem;line-height:1.3;"></div>
     </div>
     <div class="dash-card">
-      <div class="dash-label">Total Expenses</div>
+      <div class="dash-label">Total Money Spend</div>
       <div class="dash-val" id="dashExpenses">—</div>
       <div class="dash-sub" id="dashExpensesSub">0 entries</div>
     </div>
@@ -2061,6 +2087,7 @@
       </div>
       <!-- Expenses content -->
       <div id="expensesTabContent" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+        <div id="todaySpendBar"></div>
         <div class="expense-list" id="expenseList"></div>
         <div class="chart-wrap" id="expenseChartWrap" style="display:none;">
           <div class="chart-canvas-wrap">
@@ -2123,6 +2150,7 @@
           <span class="panel-name">OT Estimator</span>
         </div>
         <div class="panel-actions">
+          <button class="icon-btn" id="otRecoBulb" onclick="toggleOtReco()" title="OT Recommendation">💡</button>
           <button class="icon-btn" onclick="openOtSettings()" title="OT rate settings">⚙</button>
           <button class="icon-btn red" onclick="openAddOT()" title="Log OT">+</button>
         </div>
@@ -2166,8 +2194,26 @@
 
 <!-- Mobile panel tabs -->
 <div class="mpanel-tabs" id="mpanelTabs">
-  <button class="mpanel-tab active" id="mtabLeft" onclick="switchMPanel('left')">💸 Expenses</button>
-  <button class="mpanel-tab" id="mtabRight" onclick="switchMPanel('right')">🎯 Goals</button>
+  <div class="mpanel-tab-grp active" data-mpanel="expenses">
+    <button class="mpanel-tab-lbl" onclick="switchMPanel('expenses')">💸 Expenses</button>
+    <button class="mpanel-tab-add" onclick="openAddExpense()">+</button>
+  </div>
+  <div class="mpanel-tab-grp" data-mpanel="goals">
+    <button class="mpanel-tab-lbl" onclick="switchMPanel('goals')">🎯 Goals</button>
+    <button class="mpanel-tab-add" onclick="openAddGoal()">+</button>
+  </div>
+  <div class="mpanel-tab-grp" data-mpanel="commit">
+    <button class="mpanel-tab-lbl" onclick="switchMPanel('commit')">📅 Commit</button>
+    <button class="mpanel-tab-add" onclick="openAddCommitment()">+</button>
+  </div>
+  <div class="mpanel-tab-grp" data-mpanel="ot">
+    <button class="mpanel-tab-lbl" onclick="switchMPanel('ot')">⏱ OT</button>
+    <button class="mpanel-tab-add" onclick="openAddOT()">+</button>
+  </div>
+  <div class="mpanel-tab-grp" data-mpanel="debt">
+    <button class="mpanel-tab-lbl" onclick="switchMPanel('debt')">💳 Debt</button>
+    <button class="mpanel-tab-add" onclick="openAddDebt()">+</button>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════
@@ -2600,6 +2646,16 @@
       <button class="modal-btn secondary" onclick="closeEstIncomeModal()">Cancel</button>
       <button class="modal-btn primary" onclick="saveEstIncome()">Save</button>
     </div>
+  </div>
+</div>
+
+<!-- OT Recommendation Modal -->
+<div class="modal-overlay" id="otRecoModal" onclick="if(event.target===this)closeOtReco()">
+  <div class="modal" style="max-width:400px;">
+    <button class="modal-close" onclick="closeOtReco()">✕</button>
+    <div class="modal-icon">💡</div>
+    <div class="modal-title" id="otRecoTitle">OT Recommendation</div>
+    <div id="otRecoBody"></div>
   </div>
 </div>
 
@@ -3252,9 +3308,61 @@ function saveOT(arr) { localStorage.setItem(OT_KEY, JSON.stringify(arr)); }
 
 var _otViewMonthIdx = periodMonthIdx;
 var _otViewYear     = periodYear;
+var _otRecoOpen     = false;
 function _otViewKey() { return profilePrefix + 'mft_ot_' + ALL_MONTHS[_otViewMonthIdx].toLowerCase() + '_' + _otViewYear; }
 function loadOTView() { try { return JSON.parse(localStorage.getItem(_otViewKey())) || []; } catch(e) { return []; } }
 function saveOTView(arr) { localStorage.setItem(_otViewKey(), JSON.stringify(arr)); }
+function closeOtReco() { document.getElementById("otRecoModal").classList.remove("open"); }
+function toggleOtReco() {
+  var _rBasic   = parseFloat(localStorage.getItem(EST_GROSS_KEY)) || 0;
+  var _rCfg     = loadSalaryConfig();
+  var _rDed     = _rCfg.gross > 0 ? _rCfg.gross - _calcNett(_rCfg) : 0;
+  var _sal      = _rBasic > 0 ? Math.max(0, _rBasic - _rDed) : (parseFloat(localStorage.getItem(salaryKey)) || 0);
+  var _salLabel = _rBasic > 0 ? fmt(_rBasic) + " − " + fmt(_rDed) + " = " + fmt(_sal) : fmt(_sal);
+  var _nextMo   = periodMonthIdx === 11 ? 0 : periodMonthIdx + 1;
+  var _nextYr   = periodMonthIdx === 11 ? periodYear + 1 : periodYear;
+  var _nextLbl  = ALL_MONTHS[_nextMo] + " " + _nextYr;
+  var _commitAmt = commitTotal();
+  var _shortfall = Math.max(0, _commitAmt - _sal);
+  var _surplus   = Math.max(0, _sal - _commitAmt);
+  var _baseRate  = getHourlyRate();
+  var _otTypes   = getAllOtTypes();
+  var _otMult    = (_otTypes.ot1 && _otTypes.ot1.mult) ? _otTypes.ot1.mult : 1.5;
+  var _otRate    = _baseRate > 0 ? _baseRate * _otMult : 0;
+  var _hrsNeeded = _otRate > 0 ? Math.ceil((_shortfall / _otRate) * 2) / 2 : 0;
+  var titleEl = document.getElementById("otRecoTitle");
+  if (titleEl) titleEl.textContent = "OT for " + _nextLbl;
+  var body = document.getElementById("otRecoBody");
+  if (!body) { document.getElementById("otRecoModal").classList.add("open"); return; }
+  var h = "";
+  if (_sal <= 0) {
+    h += "<p style=\"color:#64748b;font-size:0.85rem;text-align:center;\">Set your salary first to get a recommendation.</p>";
+  } else if (_shortfall <= 0) {
+    h += "<div style=\"text-align:center;padding:0.5rem 0;\">";
+    h += "<div style=\"font-size:1.4rem;font-weight:800;color:#4ade80;\">No OT needed!</div>";
+    h += "<div style=\"font-size:0.78rem;color:#64748b;margin-top:0.4rem;\">Nett income covers all commitments</div>";
+    h += "<div style=\"font-size:0.85rem;color:#4ade80;margin-top:0.2rem;\">+" + fmt(_surplus) + " to spare</div>";
+    h += "</div>";
+  } else {
+    h += "<div style=\"text-align:center;padding:0.4rem 0 0.6rem;\">";
+    if (_otRate > 0) {
+      h += "<div style=\"font-size:2rem;font-weight:800;color:#f97316;\">" + _hrsNeeded.toFixed(1) + " hrs</div>";
+      h += "<div style=\"font-size:0.75rem;color:#94a3b8;margin-top:0.1rem;\">of Standard OT needed in " + _nextLbl + "</div>";
+    } else {
+      h += "<div style=\"font-size:0.8rem;color:#f87171;font-weight:700;\">Set base hourly rate in ⚙ to see hours</div>";
+    }
+    h += "</div>";
+    h += "<div style=\"background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.75rem;display:flex;flex-direction:column;gap:0.45rem;font-size:0.78rem;\">";
+    h += "<div style=\"display:flex;justify-content:space-between;\"><span style=\"color:#64748b;\">Nett income</span><span style=\"color:#eab308;font-weight:600;\">" + _salLabel + "</span></div>";
+    h += "<div style=\"display:flex;justify-content:space-between;\"><span style=\"color:#64748b;\">Fixed commitments</span><span style=\"color:#94a3b8;font-weight:600;\">" + fmt(_commitAmt) + "</span></div>";
+
+    h += "<div style=\"display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.07);padding-top:0.4rem;\"><span style=\"color:#f87171;font-weight:700;\">Shortfall</span><span style=\"color:#f87171;font-weight:700;\">" + fmt(_shortfall) + "</span></div>";
+    if (_otRate > 0) h += "<div style=\"display:flex;justify-content:space-between;margin-top:0.1rem;\"><span style=\"color:#64748b;\">OT rate (base × " + _otMult + "x)</span><span style=\"color:#94a3b8;\">RM " + _baseRate.toFixed(2) + " × " + _otMult + " = RM " + _otRate.toFixed(2) + "/hr</span></div>";
+    h += "</div>";
+  }
+  body.innerHTML = h;
+  document.getElementById("otRecoModal").classList.add("open");
+}
 function otPrevMonth() {
   if (_otViewMonthIdx === 0) { _otViewMonthIdx = 11; _otViewYear--; }
   else { _otViewMonthIdx--; }
@@ -4359,12 +4467,31 @@ function renderDashboard() {
     document.getElementById('dashIncome').textContent = fmtCurDash();
     document.getElementById('dashIncomeSub').textContent = 'tap to configure';
   }
-
-  document.getElementById('dashExpenses').textContent = fmt(totalExp);
-  document.getElementById('dashExpensesSub').textContent = expenses.length + ' entr' + (expenses.length === 1 ? 'y' : 'ies');
+  var _extraEl = document.getElementById("dashIncomeExtra");
+  if (_extraEl) {
+    if (totalReceived > 0) {
+      _extraEl.style.display = "";
+      var _incTotal = salary + totalReceived;
+      _extraEl.textContent = "+ " + fmt(totalReceived) + " extra  =  " + fmt(_incTotal) + " total";
+    } else {
+      _extraEl.style.display = "none";
+    }
+  }
 
   const totalCommit = commitTotal();
+  document.getElementById('dashExpenses').textContent = fmt(totalExp + totalCommit);
+  var _expCleared  = _getDueCleared();
+  var _expCommits  = loadCommitments();
+  var _expPaidList = _expCommits.filter(function(c) { return _expCleared.indexOf(c.id) !== -1; });
+  var _expActuals  = _getDueActuals();
+  var _expPaidAmt  = _expPaidList.reduce(function(s, c) { var a = _expActuals[c.id]; return s + (a !== undefined ? a : (parseFloat(c.amount) || 0)); }, 0);
+  var _expEntriesPart = expenses.length + (expenses.length === 1 ? " entry" : " entries") + " (" + fmt(totalExp) + ")";
+  var _expCommitPart  = _expCommits.length > 0 ? " · " + _expCommits.length + (_expCommits.length === 1 ? " commitment" : " commitments") + (_expPaidList.length > 0 ? " (" + _expPaidList.length + " paid · " + fmt(_expPaidAmt) + ")" : "") : "";
+  var _expSub = _expEntriesPart + _expCommitPart;
+  document.getElementById("dashExpensesSub").textContent = _expSub;
   const remain = salary + totalReceived - totalExp - totalCommit;
+  var incLabel = document.getElementById('dashIncomeLabel');
+  if (incLabel && incLabel.firstChild) incLabel.firstChild.textContent = periodMonthName;
   var remLabel = document.getElementById('dashRemainLabel');
   if (remLabel && remLabel.firstChild) remLabel.firstChild.textContent = periodMonthName;
   document.getElementById('dashRemain').textContent = salary > 0 ? fmt(remain) : fmtCurDash();
@@ -4441,28 +4568,48 @@ function renderPanelA() {
     return;
   }
 
-  // sort newest first by date string DD/MM/YYYY → convert to YYYY/MM/DD for reliable sort
-  const sorted = list.slice().sort(function(a, b) {
+  // sort newest date first; within same date, latest added (higher index) first
+  const indexed = list.map(function(e, i) { return { e: e, i: i }; });
+  indexed.sort(function(a, b) {
     function toSortable(d) {
       if (!d) return '';
       var p = d.split('/');
       return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d;
     }
-    return toSortable(b.date).localeCompare(toSortable(a.date));
+    var dateCmp = toSortable(b.e.date).localeCompare(toSortable(a.e.date));
+    return dateCmp !== 0 ? dateCmp : b.i - a.i;
   });
+  const sorted = indexed.map(function(x) { return x.e; });
   _lastExpenseList = sorted;
 
-  el.innerHTML = sorted.map(function(exp, i) {
-    const cat = CATEGORIES[exp.category] || CATEGORIES.others;
-    return '<div class="expense-row">' +
-      '<div class="cat-dot" style="background:' + cat.color + '"></div>' +
-      '<div class="exp-desc" title="' + escHtml(exp.description) + '">' + escHtml(exp.description) + '</div>' +
-      '<div class="exp-date">' + escHtml(exp.date || '') + '</div>' +
-      '<div class="exp-amt">' + fmt(exp.amount) + '</div>' +
-      '<button class="exp-edit" onclick="openEditExpense(' + i + ')" title="Edit">✏</button>' +
-      '<button class="exp-del" onclick="deleteExpenseAt(' + i + ')">✕</button>' +
-      '</div>';
-  }).join('');
+  var _now = new Date();
+  var _todayStr = String(_now.getDate()).padStart(2, "0") + "/" + String(_now.getMonth() + 1).padStart(2, "0") + "/" + _now.getFullYear();
+  var _yd = new Date(_now); _yd.setDate(_yd.getDate() - 1);
+  var _yStr = String(_yd.getDate()).padStart(2, "0") + "/" + String(_yd.getMonth() + 1).padStart(2, "0") + "/" + _yd.getFullYear();
+  var _tBar = document.getElementById("todaySpendBar"); if (_tBar) _tBar.innerHTML = "";
+  var _MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function _dLbl(d) { if (!d) return "No date"; if (d === _todayStr) return "Today"; if (d === _yStr) return "Yesterday"; var p = d.split("/"); return p.length === 3 ? parseInt(p[0]) + " " + _MO[parseInt(p[1])-1] + " " + p[2] : d; }
+  var _dtTotals = {}; sorted.forEach(function(e) { var d = e.date || ""; _dtTotals[d] = (_dtTotals[d] || 0) + (parseFloat(e.amount) || 0); });
+  var _prevD = null, _gh = "";
+  sorted.forEach(function(exp, i) {
+    var cat = CATEGORIES[exp.category] || CATEGORIES.others;
+    var d = exp.date || "";
+    if (d !== _prevD) {
+      _prevD = d;
+      var isTd = d === _todayStr;
+      var cls = isTd ? " today" : "";
+      _gh += "<div class=\"exp-date-hdr\"><span class=\"exp-date-hdr-lbl" + cls + "\">" + escHtml(_dLbl(d)) + "</span><span class=\"exp-date-hdr-amt" + cls + "\">−" + fmt(_dtTotals[d] || 0) + "</span></div>";
+    }
+    _gh += "<div class=\"expense-row\">" +
+      "<div class=\"cat-dot\" style=\"background:" + cat.color + "\"></div>" +
+      "<div class=\"exp-desc\" title=\"" + escHtml(exp.description) + "\">" + escHtml(exp.description) + "</div>" +
+      "<div class=\"exp-date\">" + escHtml(exp.date || "") + "</div>" +
+      "<div class=\"exp-amt\">" + fmt(exp.amount) + "</div>" +
+      "<button class=\"exp-edit\" onclick=\"openEditExpense(" + i + ")\" title=\"Edit\">✏</button>" +
+      "<button class=\"exp-del\" onclick=\"deleteExpenseAt(" + i + ")\">✕</button>" +
+      "</div>";
+  });
+  el.innerHTML = _gh;
 
   renderDashboard();
   renderBudget();
@@ -6292,21 +6439,26 @@ function deleteContrib(goalId, contribId) {
 }
 
 // ── Mobile panel switching ──
-function switchMPanel(panel) {
-  var expEl  = document.querySelector('[data-panel="expenses"]');
-  var goalEl = document.getElementById('panelB');
-  var tabL   = document.getElementById('mtabLeft');
-  var tabR   = document.getElementById('mtabRight');
-  if (panel === 'left') {
-    if (expEl)  expEl.style.display  = '';
-    if (goalEl) goalEl.style.display = 'none';
-    if (tabL) tabL.classList.add('active');
-    if (tabR) tabR.classList.remove('active');
-  } else {
-    if (expEl)  expEl.style.display  = 'none';
-    if (goalEl) goalEl.style.display = '';
-    if (tabL) tabL.classList.remove('active');
-    if (tabR) tabR.classList.add('active');
+var _MOBILE_PANELS = ["expenses", "goals", "commit", "ot", "debt"];
+var _activeMPanel  = "expenses";
+
+function switchMPanel(name) {
+  _activeMPanel = name;
+  _MOBILE_PANELS.forEach(function(p) {
+    var el = document.querySelector("[data-panel=\"" + p + "\"]");
+    if (el) el.style.display = (p === name) ? "" : "none";
+  });
+  document.querySelectorAll(".mpanel-tab-grp").forEach(function(grp) {
+    grp.classList.toggle("active", grp.dataset.mpanel === name);
+  });
+}
+
+function _initMobilePanels() {
+  if (window.innerWidth <= 768) {
+    _MOBILE_PANELS.forEach(function(p) {
+      var el = document.querySelector("[data-panel=\"" + p + "\"]");
+      if (el) el.style.display = (p === _activeMPanel) ? "" : "none";
+    });
   }
 }
 
@@ -7152,20 +7304,25 @@ function applyFinVisibility() {
 // MOBILE FAB
 // ═══════════════════════════════════════════════════
 function mobileFabClick() {
-  var tabR = document.getElementById('mtabRight');
-  if (tabR && tabR.classList.contains('active')) {
-    openAddGoal();
-  } else {
-    openAddExpense();
-  }
+  var actions = {
+    expenses: openAddExpense,
+    goals:    openAddGoal,
+    commit:   openAddCommitment,
+    ot:       openAddOT,
+    debt:     openAddDebt
+  };
+  var fn = actions[_activeMPanel];
+  if (fn) fn();
 }
 
-// Restore panel visibility when returning to desktop from mobile
-window.addEventListener('resize', function() {
+// Restore panel visibility when switching between mobile and desktop
+window.addEventListener("resize", function() {
   if (window.innerWidth > 768) {
-    document.querySelectorAll('[data-panel]').forEach(function(el) {
-      el.style.display = '';
+    document.querySelectorAll("[data-panel]").forEach(function(el) {
+      el.style.display = "";
     });
+  } else {
+    _initMobilePanels();
   }
 });
 
@@ -7933,6 +8090,7 @@ _syncKey = getSyncKey();
   applyModuleVisibility();
   initModuleRemoveButtons();
   applyLayout();
+  _initMobilePanels();
   loadSnapPref();
   loadEstIncomePref();
   initSnapGuides();
