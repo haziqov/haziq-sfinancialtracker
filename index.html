@@ -1282,9 +1282,9 @@
     .mobile-fab:active { transform: scale(0.91); box-shadow: 0 2px 12px rgba(239,68,68,0.4); }
 
     @media (max-width: 768px) {
-      .mobile-fab { display: flex; }
+      .mobile-fab { display: none; }
       .btn-scan { display: none; }
-      .panel-actions .icon-btn.red { display: none; }
+      /* panel red + buttons stay visible — tab bar handles adding per module */
     }
 
     @media (max-width: 400px) {
@@ -5347,6 +5347,8 @@ function applyModuleVisibility() {
     var on = _activeModules.indexOf(id) >= 0;
     el.style.display = on ? '' : 'none';
   });
+  // On mobile, re-enforce single-panel view after showing all modules
+  if (window.innerWidth <= 768) _initMobilePanels();
 }
 
 function addModule(id) {
@@ -5355,23 +5357,28 @@ function addModule(id) {
   saveActiveModules();
   var el = document.querySelector('[data-panel="' + id + '"]');
   if (el) {
-    el.style.display = '';
-    var positions = loadLayout();
-    var saved = positions && positions[id];
-    if (!saved || saved.width === 0 || saved.height === 0) {
-      var canvas = getCanvas();
-      var cW = canvas.offsetWidth, cH = canvas.offsetHeight;
-      el.style.top    = '20px';
-      el.style.left   = '20px';
-      el.style.width  = Math.min(420, cW - 40) + 'px';
-      el.style.height = Math.min(320, cH - 40) + 'px';
+    if (window.innerWidth <= 768) {
+      // On mobile: keep single-panel view, just update visibility
+      _initMobilePanels();
     } else {
-      el.style.top    = saved.top    + 'px';
-      el.style.left   = saved.left   + 'px';
-      el.style.width  = saved.width  + 'px';
-      el.style.height = saved.height + 'px';
+      el.style.display = '';
+      var positions = loadLayout();
+      var saved = positions && positions[id];
+      if (!saved || saved.width === 0 || saved.height === 0) {
+        var canvas = getCanvas();
+        var cW = canvas.offsetWidth, cH = canvas.offsetHeight;
+        el.style.top    = '20px';
+        el.style.left   = '20px';
+        el.style.width  = Math.min(420, cW - 40) + 'px';
+        el.style.height = Math.min(320, cH - 40) + 'px';
+      } else {
+        el.style.top    = saved.top    + 'px';
+        el.style.left   = saved.left   + 'px';
+        el.style.width  = saved.width  + 'px';
+        el.style.height = saved.height + 'px';
+      }
+      el.style.zIndex = ++_panelZTop;
     }
-    el.style.zIndex = ++_panelZTop;
   }
 }
 
@@ -5382,6 +5389,8 @@ function removeModule(id) {
   saveActiveModules();
   var el = document.querySelector('[data-panel="' + id + '"]');
   if (el) el.style.display = 'none';
+  // On mobile: if we removed the active panel, switch to first available
+  if (window.innerWidth <= 768) _initMobilePanels();
 }
 
 function toggleModule(id) {
@@ -5572,10 +5581,19 @@ function saveCurrentLayout() {
 }
 
 function applyLayout() {
-  if (window.innerWidth <= 1366) {
-    // On mobile: clear any desktop inline styles so CSS media queries take full control
+  if (window.innerWidth <= 768) {
+    // Mobile: clear position styles then enforce single-panel view
     document.querySelectorAll('[data-panel]').forEach(function(el) {
       el.style.top = ''; el.style.left = ''; el.style.width = ''; el.style.height = '';
+    });
+    _initMobilePanels();
+    return;
+  }
+  if (window.innerWidth <= 1366) {
+    // Tablet: clear position styles, show all active panels
+    document.querySelectorAll('[data-panel]').forEach(function(el) {
+      el.style.top = ''; el.style.left = ''; el.style.width = ''; el.style.height = '';
+      if (_activeModules.indexOf(el.dataset.panel) >= 0) el.style.display = '';
     });
     return;
   }
