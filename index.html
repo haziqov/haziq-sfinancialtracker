@@ -1060,6 +1060,8 @@
       /* ─ Mobile panel tabs visible ─ */
       .mpanel-tabs { display: flex; }
 
+      /* ─ App body scrollable on mobile ─ */
+      .app-body { overflow-y: auto !important; }
       /* ─ Panels: stacked full-width on mobile ─ */
       .panels-row { position: static; display: flex; flex-direction: column; overflow: visible; padding: 0 1rem 1.5rem; gap: 0.6rem; }
       [data-panel] { position: static !important; width: 100% !important; height: auto !important; min-height: unset !important; }
@@ -2014,6 +2016,30 @@
     </div>
   </div>
 
+  <!-- Mobile panel tabs (inside app-body so they're visible over the fixed overlay) -->
+  <div class="mpanel-tabs" id="mpanelTabs">
+    <div class="mpanel-tab-grp active" data-mpanel="expenses">
+      <button class="mpanel-tab-lbl" onclick="switchMPanel('expenses')">💸 Expenses</button>
+      <button class="mpanel-tab-add" onclick="openAddExpense()">+</button>
+    </div>
+    <div class="mpanel-tab-grp" data-mpanel="goals">
+      <button class="mpanel-tab-lbl" onclick="switchMPanel('goals')">🎯 Goals</button>
+      <button class="mpanel-tab-add" onclick="openAddGoal()">+</button>
+    </div>
+    <div class="mpanel-tab-grp" data-mpanel="commit">
+      <button class="mpanel-tab-lbl" onclick="switchMPanel('commit')">📅 Commit</button>
+      <button class="mpanel-tab-add" onclick="openAddCommitment()">+</button>
+    </div>
+    <div class="mpanel-tab-grp" data-mpanel="ot">
+      <button class="mpanel-tab-lbl" onclick="switchMPanel('ot')">⏱ OT</button>
+      <button class="mpanel-tab-add" onclick="openAddOT()">+</button>
+    </div>
+    <div class="mpanel-tab-grp" data-mpanel="debt">
+      <button class="mpanel-tab-lbl" onclick="switchMPanel('debt')">💳 Debt</button>
+      <button class="mpanel-tab-add" onclick="openAddDebt()">+</button>
+    </div>
+  </div>
+
   <!-- Panels — free-form canvas -->
   <div class="panels-row" id="panelsCanvas">
 
@@ -2192,30 +2218,6 @@
     </div>
 
   </div><!-- end panels canvas -->
-</div>
-
-<!-- Mobile panel tabs -->
-<div class="mpanel-tabs" id="mpanelTabs">
-  <div class="mpanel-tab-grp active" data-mpanel="expenses">
-    <button class="mpanel-tab-lbl" onclick="switchMPanel('expenses')">💸 Expenses</button>
-    <button class="mpanel-tab-add" onclick="openAddExpense()">+</button>
-  </div>
-  <div class="mpanel-tab-grp" data-mpanel="goals">
-    <button class="mpanel-tab-lbl" onclick="switchMPanel('goals')">🎯 Goals</button>
-    <button class="mpanel-tab-add" onclick="openAddGoal()">+</button>
-  </div>
-  <div class="mpanel-tab-grp" data-mpanel="commit">
-    <button class="mpanel-tab-lbl" onclick="switchMPanel('commit')">📅 Commit</button>
-    <button class="mpanel-tab-add" onclick="openAddCommitment()">+</button>
-  </div>
-  <div class="mpanel-tab-grp" data-mpanel="ot">
-    <button class="mpanel-tab-lbl" onclick="switchMPanel('ot')">⏱ OT</button>
-    <button class="mpanel-tab-add" onclick="openAddOT()">+</button>
-  </div>
-  <div class="mpanel-tab-grp" data-mpanel="debt">
-    <button class="mpanel-tab-lbl" onclick="switchMPanel('debt')">💳 Debt</button>
-    <button class="mpanel-tab-add" onclick="openAddDebt()">+</button>
-  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════
